@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_06mpr26" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:process id="hydroponode" name="Hydroponode" isExecutable="true">
+    <bpmn:startEvent id="startEvent_1" name="Data Received">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="moisture" label="Moisture" type="long" defaultValue="24" />
+          <camunda:formField id="light" label="Light" type="long" defaultValue="25" />
+          <camunda:formField id="temperature" label="Temperature" type="long" defaultValue="80" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>dataReceived</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="endEvent_1" name="Done">
+      <bpmn:incoming>isNotTooHot</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="needsWatering" name="Too dry?">
+      <bpmn:incoming>seeIfNeedsWatering</bpmn:incoming>
+      <bpmn:outgoing>notTooDry</bpmn:outgoing>
+      <bpmn:outgoing>tooDry</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="Gateway_066mvs1" name="Needs light?">
+      <bpmn:incoming>Flow_1u21dbm</bpmn:incoming>
+      <bpmn:outgoing>doesntNeedLight</bpmn:outgoing>
+      <bpmn:outgoing>needsLight</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="dataReceived" name="dataReceived" sourceRef="startEvent_1" targetRef="waterService" />
+    <bpmn:sequenceFlow id="seeIfNeedsWatering" name="See if Needs Watering" sourceRef="waterService" targetRef="needsWatering" />
+    <bpmn:sequenceFlow id="notTooDry" name="notTooDry" sourceRef="needsWatering" targetRef="Activity_0cmg3ax">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${moisture&gt;50}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:serviceTask id="waterService" name="Water Service" camunda:type="external" camunda:topic="sensor-data">
+      <bpmn:incoming>dataReceived</bpmn:incoming>
+      <bpmn:outgoing>seeIfNeedsWatering</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1u21dbm" sourceRef="Activity_0cmg3ax" targetRef="Gateway_066mvs1" />
+    <bpmn:sendTask id="Activity_1qlkt46" name="Switch ON Light" camunda:type="external" camunda:topic="light-switch-ctrl">
+      <bpmn:incoming>isDaytimeYes</bpmn:incoming>
+    </bpmn:sendTask>
+    <bpmn:serviceTask id="Activity_0cmg3ax" name="Light Service" camunda:type="external" camunda:topic="sensor-data">
+      <bpmn:incoming>notTooDry</bpmn:incoming>
+      <bpmn:incoming>wateringServiceDone</bpmn:incoming>
+      <bpmn:outgoing>Flow_1u21dbm</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="isDaytime" name="Is it daytime?">
+      <bpmn:incoming>needsLight</bpmn:incoming>
+      <bpmn:outgoing>isDaytimeYes</bpmn:outgoing>
+      <bpmn:outgoing>isDaytimeNo</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="isDaytimeYes" name="isDaytimeYes" sourceRef="isDaytime" targetRef="Activity_1qlkt46">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:subProcess id="pump" name="Pump">
+      <bpmn:incoming>tooDry</bpmn:incoming>
+      <bpmn:outgoing>wateringServiceDone</bpmn:outgoing>
+      <bpmn:standardLoopCharacteristics />
+      <bpmn:startEvent id="pumpingBegin" name="Begin Pumping">
+        <bpmn:outgoing>Flow_0vu3jlr</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:exclusiveGateway id="Gateway_0rj2l2o" name="Watering Stopped">
+        <bpmn:incoming>Flow_16oronw</bpmn:incoming>
+        <bpmn:outgoing>Flow_1qbvs33</bpmn:outgoing>
+        <bpmn:outgoing>Flow_0nidbe9</bpmn:outgoing>
+      </bpmn:exclusiveGateway>
+      <bpmn:sendTask id="stopPump" name="Stop Watering" camunda:type="external" camunda:topic="water-pump-ctrl">
+        <bpmn:incoming>Flow_1sn3nsd</bpmn:incoming>
+        <bpmn:incoming>Flow_03t810m</bpmn:incoming>
+        <bpmn:outgoing>Flow_0pvyq9w</bpmn:outgoing>
+      </bpmn:sendTask>
+      <bpmn:sequenceFlow id="Flow_0pvyq9w" sourceRef="stopPump" targetRef="pumpStatusChecker" />
+      <bpmn:endEvent id="Event_1c4ykcg">
+        <bpmn:incoming>Flow_1qbvs33</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_1qbvs33" name="Yes" sourceRef="Gateway_0rj2l2o" targetRef="Event_1c4ykcg">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!pumpState}</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_0nidbe9" name="No" sourceRef="Gateway_0rj2l2o" targetRef="stopPumpTimout">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${pumpState}</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
+      <bpmn:sequenceFlow id="Flow_0vu3jlr" sourceRef="pumpingBegin" targetRef="startPump" />
+      <bpmn:sendTask id="startPump" name="Start Watering" camunda:type="external" camunda:topic="water-pump-ctrl">
+        <bpmn:incoming>Flow_0vu3jlr</bpmn:incoming>
+        <bpmn:outgoing>Flow_03t810m</bpmn:outgoing>
+      </bpmn:sendTask>
+      <bpmn:sequenceFlow id="Flow_16oronw" sourceRef="pumpStatusChecker" targetRef="Gateway_0rj2l2o" />
+      <bpmn:userTask id="pumpStatusChecker" name="Query Pump Status">
+        <bpmn:extensionElements>
+          <camunda:formData>
+            <camunda:formField id="pumpState" label="Pump Switch" type="boolean" />
+          </camunda:formData>
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_0pvyq9w</bpmn:incoming>
+        <bpmn:outgoing>Flow_16oronw</bpmn:outgoing>
+      </bpmn:userTask>
+      <bpmn:intermediateCatchEvent id="stopPumpTimout">
+        <bpmn:incoming>Flow_0nidbe9</bpmn:incoming>
+        <bpmn:outgoing>Flow_1sn3nsd</bpmn:outgoing>
+        <bpmn:timerEventDefinition id="TimerEventDefinition_1132fdy">
+          <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">3</bpmn:timeCycle>
+        </bpmn:timerEventDefinition>
+      </bpmn:intermediateCatchEvent>
+      <bpmn:sequenceFlow id="Flow_1sn3nsd" sourceRef="stopPumpTimout" targetRef="stopPump" />
+      <bpmn:sequenceFlow id="Flow_03t810m" sourceRef="startPump" targetRef="stopPump" />
+      <bpmn:association id="Association_0vsnjj5" sourceRef="stopPumpTimout" targetRef="TextAnnotation_1s3zje6" />
+      <bpmn:textAnnotation id="TextAnnotation_1s3zje6">
+        <bpmn:text>Retry 3 times then send an email saying it failed</bpmn:text>
+      </bpmn:textAnnotation>
+    </bpmn:subProcess>
+    <bpmn:exclusiveGateway id="tooCold" name="Too Cold?">
+      <bpmn:incoming>checkIfNeedsHeater</bpmn:incoming>
+      <bpmn:outgoing>notTooCold</bpmn:outgoing>
+      <bpmn:outgoing>isTooCold</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="tooHot" name="Too Hot?">
+      <bpmn:incoming>notTooCold</bpmn:incoming>
+      <bpmn:outgoing>isNotTooHot</bpmn:outgoing>
+      <bpmn:outgoing>isTooHot</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:sequenceFlow id="notTooCold" name="notTooCold" sourceRef="tooCold" targetRef="tooHot">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${temperature&gt;72}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="isNotTooHot" name="isNotTooHot" sourceRef="tooHot" targetRef="endEvent_1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${temperature&lt;=88}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="tooDry" name="tooDry" sourceRef="needsWatering" targetRef="pump" />
+    <bpmn:sequenceFlow id="wateringServiceDone" name="Watering Service Done" sourceRef="pump" targetRef="Activity_0cmg3ax" />
+    <bpmn:sequenceFlow id="checkIfNeedsHeater" name="See if Needs Heater" sourceRef="heatService1" targetRef="tooCold" />
+    <bpmn:serviceTask id="heatService1" name="Heat Service" camunda:type="external" camunda:topic="sensor-data">
+      <bpmn:incoming>isDaytimeNo</bpmn:incoming>
+      <bpmn:incoming>doesntNeedLight</bpmn:incoming>
+      <bpmn:outgoing>checkIfNeedsHeater</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:task id="enableHeater" name="Enable Heater">
+      <bpmn:incoming>isTooCold</bpmn:incoming>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="isTooCold" name="isTooCold" sourceRef="tooCold" targetRef="enableHeater">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${temperature&lt;=72}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:task id="disableHeater" name="Disable Heater">
+      <bpmn:incoming>isTooHot</bpmn:incoming>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="isTooHot" name="isTooHot" sourceRef="tooHot" targetRef="disableHeater">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${temperature&gt;88}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="isDaytimeNo" name="isDaytimeNo" sourceRef="isDaytime" targetRef="heatService1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="doesntNeedLight" name="doesntNeedLight" sourceRef="Gateway_066mvs1" targetRef="heatService1" />
+    <bpmn:sequenceFlow id="needsLight" name="needsLight" sourceRef="Gateway_066mvs1" targetRef="isDaytime">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${light&lt;=50}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+  <bpmn:message id="Message_0in6o7o" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="hydroponode">
+      <bpmndi:BPMNEdge id="Flow_1p83f7v_di" bpmnElement="needsLight">
+        <di:waypoint x="1190" y="195" />
+        <di:waypoint x="1190" y="265" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1178" y="227" width="54" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0iwouo3_di" bpmnElement="doesntNeedLight">
+        <di:waypoint x="1215" y="170" />
+        <di:waypoint x="1290" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1212" y="152" width="84" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0icdmci_di" bpmnElement="isDaytimeNo">
+        <di:waypoint x="1215" y="290" />
+        <di:waypoint x="1340" y="290" />
+        <di:waypoint x="1340" y="210" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1248" y="272" width="63" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0dsi6yp_di" bpmnElement="isTooHot">
+        <di:waypoint x="1690" y="195" />
+        <di:waypoint x="1690" y="260" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1684" y="225" width="43" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1j40ymr_di" bpmnElement="isTooCold">
+        <di:waypoint x="1510" y="195" />
+        <di:waypoint x="1510" y="260" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1501" y="225" width="49" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1un4nrd_di" bpmnElement="checkIfNeedsHeater">
+        <di:waypoint x="1390" y="170" />
+        <di:waypoint x="1485" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1408" y="152" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1n6kqs6_di" bpmnElement="wateringServiceDone">
+        <di:waypoint x="890" y="560" />
+        <di:waypoint x="970" y="560" />
+        <di:waypoint x="970" y="170" />
+        <di:waypoint x="1020" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="944" y="362" width="84" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mhbx3t_di" bpmnElement="tooDry">
+        <di:waypoint x="700" y="325" />
+        <di:waypoint x="700" y="425" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="699" y="372" width="33" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1805wof_di" bpmnElement="isNotTooHot">
+        <di:waypoint x="1715" y="170" />
+        <di:waypoint x="1792" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1724" y="152" width="60" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1punxuv_di" bpmnElement="notTooCold">
+        <di:waypoint x="1535" y="170" />
+        <di:waypoint x="1665" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1573" y="152" width="56" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10ccucv_di" bpmnElement="isDaytimeYes">
+        <di:waypoint x="1190" y="315" />
+        <di:waypoint x="1190" y="390" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1172" y="323" width="67" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1u21dbm_di" bpmnElement="Flow_1u21dbm">
+        <di:waypoint x="1120" y="170" />
+        <di:waypoint x="1165" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1s7hr8q_di" bpmnElement="notTooDry">
+        <di:waypoint x="725" y="300" />
+        <di:waypoint x="970" y="300" />
+        <di:waypoint x="970" y="170" />
+        <di:waypoint x="1020" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="767" y="283" width="51" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1txx8r2_di" bpmnElement="seeIfNeedsWatering">
+        <di:waypoint x="700" y="200" />
+        <di:waypoint x="700" y="275" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="708" y="218" width="63" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1l5jn3n_di" bpmnElement="dataReceived">
+        <di:waypoint x="569" y="170" />
+        <di:waypoint x="650" y="170" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="576" y="152" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="startEvent_1">
+        <dc:Bounds x="533" y="152" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="514" y="198" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1l287p1_di" bpmnElement="endEvent_1">
+        <dc:Bounds x="1792" y="152" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1797" y="195" width="27" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1jf1wec_di" bpmnElement="needsWatering" isMarkerVisible="true">
+        <dc:Bounds x="675" y="275" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="602" y="293" width="43" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_066mvs1_di" bpmnElement="Gateway_066mvs1" isMarkerVisible="true">
+        <dc:Bounds x="1165" y="145" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1159" y="121" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1lhls6v_di" bpmnElement="waterService">
+        <dc:Bounds x="650" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1qlkt46_di" bpmnElement="Activity_1qlkt46">
+        <dc:Bounds x="1140" y="390" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ltgjuv_di" bpmnElement="Activity_0cmg3ax">
+        <dc:Bounds x="1020" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1nya1gg_di" bpmnElement="isDaytime" isMarkerVisible="true">
+        <dc:Bounds x="1165" y="265" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1097" y="283" width="65" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0nfect6_di" bpmnElement="pump" isExpanded="true">
+        <dc:Bounds x="160" y="425" width="730" height="245" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1sn3nsd_di" bpmnElement="Flow_1sn3nsd">
+        <di:waypoint x="592" y="585" />
+        <di:waypoint x="460" y="585" />
+        <di:waypoint x="460" y="545" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16oronw_di" bpmnElement="Flow_16oronw">
+        <di:waypoint x="670" y="505" />
+        <di:waypoint x="715" y="505" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0vu3jlr_di" bpmnElement="Flow_0vu3jlr">
+        <di:waypoint x="228" y="505" />
+        <di:waypoint x="260" y="505" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0nidbe9_di" bpmnElement="Flow_0nidbe9">
+        <di:waypoint x="740" y="530" />
+        <di:waypoint x="740" y="585" />
+        <di:waypoint x="628" y="585" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="712" y="541" width="15" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qbvs33_di" bpmnElement="Flow_1qbvs33">
+        <di:waypoint x="765" y="505" />
+        <di:waypoint x="822" y="505" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="793" y="487" width="18" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pvyq9w_di" bpmnElement="Flow_0pvyq9w">
+        <di:waypoint x="510" y="505" />
+        <di:waypoint x="570" y="505" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03t810m_di" bpmnElement="Flow_03t810m">
+        <di:waypoint x="360" y="505" />
+        <di:waypoint x="410" y="505" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1ynxynz_di" bpmnElement="pumpingBegin">
+        <dc:Bounds x="192" y="487" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="175" y="530" width="75" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0rj2l2o_di" bpmnElement="Gateway_0rj2l2o" isMarkerVisible="true">
+        <dc:Bounds x="715" y="480" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="696" y="456" width="88" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_15zocvh_di" bpmnElement="stopPump">
+        <dc:Bounds x="410" y="465" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1c4ykcg_di" bpmnElement="Event_1c4ykcg">
+        <dc:Bounds x="822" y="487" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_025dea1_di" bpmnElement="startPump">
+        <dc:Bounds x="260" y="465" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1iux8y0_di" bpmnElement="pumpStatusChecker">
+        <dc:Bounds x="570" y="465" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_05fa9pp_di" bpmnElement="stopPumpTimout">
+        <dc:Bounds x="592" y="567" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_1s3zje6_di" bpmnElement="TextAnnotation_1s3zje6">
+        <dc:Bounds x="690" y="597" width="150" height="43" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Association_0vsnjj5_di" bpmnElement="Association_0vsnjj5">
+        <di:waypoint x="628" y="589" />
+        <di:waypoint x="690" y="602" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Gateway_02e787d_di" bpmnElement="tooCold" isMarkerVisible="true">
+        <dc:Bounds x="1485" y="145" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1485" y="121" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0f771y2_di" bpmnElement="tooHot" isMarkerVisible="true">
+        <dc:Bounds x="1665" y="145" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1667" y="121" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0suxrbn_di" bpmnElement="heatService1">
+        <dc:Bounds x="1290" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_03ga57r_di" bpmnElement="enableHeater">
+        <dc:Bounds x="1460" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1s6iuvr_di" bpmnElement="disableHeater">
+        <dc:Bounds x="1640" y="260" width="100" height="80" />
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
