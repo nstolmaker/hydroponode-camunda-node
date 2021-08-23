@@ -1,3 +1,5 @@
+const { child, exec } = require('child_process');
+
 const { Client, logger, Variables } = require('camunda-external-task-client-js');
 
 
@@ -9,6 +11,48 @@ const config = { baseUrl: 'http://localhost:8080/engine-rest', use: logger, asyn
 
 // create a Client instance with custom configuration
 const client = new Client(config);
+
+/** 
+ * poll status of device
+ * 
+ */
+async function getSwitchStatus(ip) {
+  // console.log("About to run: ", `./tplink_smartplug.py -t ${ip} -qc info`)
+  exec(`./tplink_smartplug.py -t ${ip} -qc info`, async (error, stdout, stderr) => {
+    if (error) {
+        console.log(`error: ${error.message}`);
+        return 'fail!!!!';
+    }
+    if (stderr) {
+        console.log(`stderr: ${stderr}`);
+        return 'fail!!!';
+    }
+    const r = JSON.parse(stdout)
+    return r.system.get_sysinfo.relay_state === 1 ? true : false
+  });
+  return false
+}
+
+const SwitchIpFromName = {
+  'light': '192.168.0.43',
+  'heater': '192.168.0.43',
+  'pump': '192.168.0.43',
+}
+
+/**
+ * sensor-data
+ */
+ client.subscribe('switch-status-pump', async function({ task, taskService }) {
+  // const temperature = task.variables.get('temperature');
+  // const moisture = task.variables.get('moisture');
+  // const light = task.variables.get('light');
+
+  const switchStatus = await getSwitchStatus(SwitchIpFromName['pump'])
+  console.log(`[${new Date().toLocaleString()}] {switch-status-pump} called, which runs on IP: ${SwitchIpFromName['pump']}. pumpStatus=${switchStatus}`);
+  await taskService.complete(task);
+});
+
+
 
 /**
  * sensor-data
@@ -31,7 +75,7 @@ client.subscribe('water-pump-ctrl-start', async function({ task, taskService }) 
   const processVariables = new Variables();
   processVariables.set("pumpState", true)
 
-  console.log(`water-pump-ctrl: pumpState = ${processVariables.get("pumpState")}`);
+  console.log(`water-pump-ctrl-start: pumpState = ${processVariables.get("pumpState")}`);
   await taskService.complete(task, processVariables);
 });
 
@@ -42,19 +86,33 @@ client.subscribe('water-pump-ctrl-stop', async function({ task, taskService }) {
   console.log(`[${new Date().toLocaleString()}] {water-pump-ctrl-stop} pretending to turn OFF the water 🚰 pump now...`)
 
   const processVariables = new Variables();
-  processVariables.set("pumpState", false)
-  console.log(`water-pump-ctrl: pumpState = ${processVariables.get("pumpState")}`);
+  // THIS IS ON PURPOSE, IT SHOULD BREAK STUFF 
+  processVariables.set("pumpState", false) 
+  console.log(`water-pump-ctrl-stop: pumpState = ${processVariables.get("pumpState")}`);
   await taskService.complete(task, processVariables);
 });
 
 /** 
  * light-switch-ctrl-start
  */
-client.subscribe('light-switch-ctrl-start', async function({ task, taskService }) {
+ client.subscribe('light-switch-ctrl-start', async function({ task, taskService }) {
   console.log(`[${new Date().toLocaleString()}] {light-switch-ctrl-start} pretending to turn ON the light 💡 switch now...`)
 
   const processVariables = new Variables();
   processVariables.set("lightState", true);
+  await taskService.complete(task, processVariables);
+});
+
+
+
+/** 
+ * light-switch-ctrl-stop
+ */
+ client.subscribe('light-switch-ctrl-stop', async function({ task, taskService }) {
+  console.log(`[${new Date().toLocaleString()}] {light-switch-ctrl-stop} pretending to turn OFF the light 💡 switch now...`)
+
+  const processVariables = new Variables();
+  processVariables.set("lightState", false);
   await taskService.complete(task, processVariables);
 });
 
