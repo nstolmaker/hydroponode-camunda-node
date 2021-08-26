@@ -1,5 +1,5 @@
+require('dotenv').config()
 const { child, exec } = require('child_process');
-
 const { Client, logger, Variables } = require('camunda-external-task-client-js');
 
 
@@ -7,10 +7,16 @@ const { Client, logger, Variables } = require('camunda-external-task-client-js')
 //  - 'baseUrl': url to the Process Engine
 //  - 'logger': utility to automatically log important events
 //  - 'asyncResponseTimeout': long polling timeout (then a new request will be issued)
-const config = { baseUrl: 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000 };
+const config = { baseUrl: process.env.CAMUNDA_BASE_URL + '/engine-rest' || 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000 };
 
 // create a Client instance with custom configuration
 const client = new Client(config);
+
+const SwitchIpFromName = {
+  'light': process.env.LIGHT_IP,
+  'heater': process.env.HEAT_IP,
+  'pump': process.env.WATER_IP,
+}
 
 /** 
  * poll status of device
@@ -31,12 +37,6 @@ async function getSwitchStatus(ip) {
     return r.system.get_sysinfo.relay_state === 1 ? true : false
   });
   return false
-}
-
-const SwitchIpFromName = {
-  'light': '192.168.0.43',
-  'heater': '192.168.0.43',
-  'pump': '192.168.0.43',
 }
 
 /**

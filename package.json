@@ -7,7 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "nodemonConfig": {
-    "ignore": ["test/*", "docs/*"],
+    "ignore": [
+      "test/*",
+      "docs/*"
+    ],
     "delay": 2500
   },
   "keywords": [],
@@ -15,6 +18,7 @@
   "license": "ISC",
   "dependencies": {
     "camunda-external-task-client-js": "^2.1.0",
+    "dotenv": "^10.0.0",
     "nodemon": "^2.0.12"
   }
 }
