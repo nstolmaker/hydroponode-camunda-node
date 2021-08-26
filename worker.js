@@ -57,12 +57,12 @@ const SwitchIpFromName = {
 /**
  * sensor-data
  */
-client.subscribe('sensor-data', async function({ task, taskService }) {
-  const temperature = task.variables.get('temperature');
-  const moisture = task.variables.get('moisture');
-  const light = task.variables.get('light');
-
-  console.log(`[${new Date().toLocaleString()}] {sensor-data} Running with new sensor-data: `, { light, moisture, temperature });
+client.subscribe('get-sensor-data', async function({ task, taskService }) {
+  // const temperature = task.variables.get('temperature');
+  // const moisture = task.variables.get('moisture');
+  // const light = task.variables.get('light');
+  console.log(`[${new Date().toLocaleString()}] {get-sensor-data} task.businessKey=${task.businessKey}`);
+  console.log(`[${new Date().toLocaleString()}] {get-sensor-data} Running with new sensor-data: `, { light, moisture, temperature });
   await taskService.complete(task);
 });
 

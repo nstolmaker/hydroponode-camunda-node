@@ -1,19 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_06mpr26" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.9.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="hydroponode" name="Hydroponode" isExecutable="true">
-    <bpmn:startEvent id="startEvent_1" name="Data Received">
-      <bpmn:extensionElements>
-        <camunda:formData>
-          <camunda:formField id="moisture" label="Moisture" type="long" defaultValue="24" />
-          <camunda:formField id="light" label="Light" type="long" defaultValue="25" />
-          <camunda:formField id="temperature" label="Temperature" type="long" defaultValue="80" />
-          <camunda:formField id="pumpState" label="isPumpOn" type="boolean" defaultValue="false" />
-          <camunda:formField id="lightState" label="isLightOn" type="boolean" defaultValue="false" />
-          <camunda:formField id="heaterState" label="isHeaterOn" type="boolean" defaultValue="false" />
-        </camunda:formData>
-      </bpmn:extensionElements>
-      <bpmn:outgoing>dataReceived</bpmn:outgoing>
-    </bpmn:startEvent>
     <bpmn:endEvent id="endEvent_1" name="Done">
       <bpmn:incoming>isNotTooHot</bpmn:incoming>
       <bpmn:incoming>Flow_124le24</bpmn:incoming>
@@ -160,10 +147,42 @@
       <bpmn:outgoing>Flow_124le24</bpmn:outgoing>
     </bpmn:sendTask>
     <bpmn:sequenceFlow id="Flow_0pcrakd" sourceRef="Activity_1qlkt46" targetRef="heatService1" />
+    <bpmn:startEvent id="startEvent_1" name="Data Received">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="moisture" label="Moisture" type="long" defaultValue="24" />
+          <camunda:formField id="light" label="Light" type="long" defaultValue="25" />
+          <camunda:formField id="temperature" label="Temperature" type="long" defaultValue="80" />
+          <camunda:formField id="pumpState" label="isPumpOn" type="boolean" defaultValue="false" />
+          <camunda:formField id="lightState" label="isLightOn" type="boolean" defaultValue="false" />
+          <camunda:formField id="heaterState" label="isHeaterOn" type="boolean" defaultValue="false" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>dataReceived</bpmn:outgoing>
+      <bpmn:signalEventDefinition id="dataReceivedSignalEvent" signalRef="dataReceivedSignal" />
+    </bpmn:startEvent>
   </bpmn:process>
   <bpmn:message id="Message_0in6o7o" />
+  <bpmn:signal id="dataReceivedSignal" name="New Sensor Data Received" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="hydroponode">
+      <bpmndi:BPMNEdge id="Flow_0pcrakd_di" bpmnElement="Flow_0pcrakd">
+        <di:waypoint x="1240" y="500" />
+        <di:waypoint x="1340" y="500" />
+        <di:waypoint x="1340" y="170" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_124le24_di" bpmnElement="Flow_124le24">
+        <di:waypoint x="1740" y="260" />
+        <di:waypoint x="1766" y="260" />
+        <di:waypoint x="1766" y="130" />
+        <di:waypoint x="1792" y="130" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16lipcr_di" bpmnElement="Flow_16lipcr">
+        <di:waypoint x="1560" y="260" />
+        <di:waypoint x="1610" y="260" />
+        <di:waypoint x="1610" y="130" />
+        <di:waypoint x="1665" y="130" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1p83f7v_di" bpmnElement="needsLight">
         <di:waypoint x="1190" y="155" />
         <di:waypoint x="1190" y="225" />
@@ -271,29 +290,6 @@
           <dc:Bounds x="576" y="112" width="68" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_16lipcr_di" bpmnElement="Flow_16lipcr">
-        <di:waypoint x="1560" y="260" />
-        <di:waypoint x="1610" y="260" />
-        <di:waypoint x="1610" y="130" />
-        <di:waypoint x="1665" y="130" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_124le24_di" bpmnElement="Flow_124le24">
-        <di:waypoint x="1740" y="260" />
-        <di:waypoint x="1766" y="260" />
-        <di:waypoint x="1766" y="130" />
-        <di:waypoint x="1792" y="130" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0pcrakd_di" bpmnElement="Flow_0pcrakd">
-        <di:waypoint x="1240" y="500" />
-        <di:waypoint x="1340" y="500" />
-        <di:waypoint x="1340" y="170" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="startEvent_1">
-        <dc:Bounds x="533" y="112" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="514" y="158" width="73" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1l287p1_di" bpmnElement="endEvent_1">
         <dc:Bounds x="1792" y="112" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -306,8 +302,17 @@
           <dc:Bounds x="602" y="253" width="43" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_066mvs1_di" bpmnElement="Gateway_066mvs1" isMarkerVisible="true">
+        <dc:Bounds x="1165" y="105" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1159" y="81" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1lhls6v_di" bpmnElement="waterService">
         <dc:Bounds x="650" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1qlkt46_di" bpmnElement="Activity_1qlkt46">
+        <dc:Bounds x="1140" y="460" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0ltgjuv_di" bpmnElement="Activity_0cmg3ax">
         <dc:Bounds x="1020" y="90" width="100" height="80" />
@@ -318,42 +323,17 @@
           <dc:Bounds x="1089.5" y="243" width="65" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0z8wuy9_di" bpmnElement="enableHeater">
-        <dc:Bounds x="1460" y="220" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1jx1fy4_di" bpmnElement="disableHeater">
-        <dc:Bounds x="1640" y="220" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_02e787d_di" bpmnElement="tooCold" isMarkerVisible="true">
-        <dc:Bounds x="1485" y="105" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1485" y="81" width="50" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0f771y2_di" bpmnElement="tooHot" isMarkerVisible="true">
-        <dc:Bounds x="1665" y="105" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1667" y="81" width="45" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0suxrbn_di" bpmnElement="heatService1">
-        <dc:Bounds x="1290" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_066mvs1_di" bpmnElement="Gateway_066mvs1" isMarkerVisible="true">
-        <dc:Bounds x="1165" y="105" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1159" y="81" width="62" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1qlkt46_di" bpmnElement="Activity_1qlkt46">
-        <dc:Bounds x="1140" y="460" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0nfect6_di" bpmnElement="pump" isExpanded="true">
         <dc:Bounds x="160" y="385" width="730" height="320" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_1s3zje6_di" bpmnElement="TextAnnotation_1s3zje6">
-        <dc:Bounds x="690" y="557" width="149.98734817813764" height="79.6221322537112" />
-      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_06zqo69_di" bpmnElement="Flow_06zqo69">
+        <di:waypoint x="660" y="465" />
+        <di:waypoint x="715" y="465" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03t810m_di" bpmnElement="Flow_03t810m">
+        <di:waypoint x="360" y="465" />
+        <di:waypoint x="410" y="465" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1sn3nsd_di" bpmnElement="Flow_1sn3nsd">
         <di:waypoint x="592" y="545" />
         <di:waypoint x="460" y="545" />
@@ -382,14 +362,6 @@
         <di:waypoint x="510" y="465" />
         <di:waypoint x="560" y="465" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_03t810m_di" bpmnElement="Flow_03t810m">
-        <di:waypoint x="360" y="465" />
-        <di:waypoint x="410" y="465" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_06zqo69_di" bpmnElement="Flow_06zqo69">
-        <di:waypoint x="660" y="465" />
-        <di:waypoint x="715" y="465" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_1ynxynz_di" bpmnElement="pumpingBegin">
         <dc:Bounds x="192" y="447" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -417,10 +389,40 @@
       <bpmndi:BPMNShape id="Activity_0k3kuzn_di" bpmnElement="pumpStatusCheck">
         <dc:Bounds x="560" y="425" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_1s3zje6_di" bpmnElement="TextAnnotation_1s3zje6">
+        <dc:Bounds x="690" y="557" width="149.98734817813764" height="79.6221322537112" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_0vsnjj5_di" bpmnElement="Association_0vsnjj5">
         <di:waypoint x="628" y="549" />
         <di:waypoint x="690" y="562" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Gateway_02e787d_di" bpmnElement="tooCold" isMarkerVisible="true">
+        <dc:Bounds x="1485" y="105" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1485" y="81" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0f771y2_di" bpmnElement="tooHot" isMarkerVisible="true">
+        <dc:Bounds x="1665" y="105" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1667" y="81" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0suxrbn_di" bpmnElement="heatService1">
+        <dc:Bounds x="1290" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0z8wuy9_di" bpmnElement="enableHeater">
+        <dc:Bounds x="1460" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1jx1fy4_di" bpmnElement="disableHeater">
+        <dc:Bounds x="1640" y="220" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0tpkl2y_di" bpmnElement="startEvent_1">
+        <dc:Bounds x="533" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="514" y="158" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
