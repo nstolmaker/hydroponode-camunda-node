@@ -144,7 +144,6 @@
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>awaitData</bpmn:outgoing>
-      <bpmn:outgoing>Flow_0n6bvc8</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:task id="waterService" name="Water Service">
       <bpmn:incoming>dataReceived</bpmn:incoming>
@@ -167,18 +166,16 @@
       <bpmn:outgoing>dataReceived</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:endEvent id="noDataReceived" name="noDataReceived">
-      <bpmn:incoming>Flow_1yuqmc7</bpmn:incoming>
+      <bpmn:incoming>Flow_1qtg89a</bpmn:incoming>
       <bpmn:errorEventDefinition id="ErrorEventDefinition_1jhrisb" errorRef="Error_1n509jw" />
     </bpmn:endEvent>
-    <bpmn:intermediateCatchEvent id="noDataTimer" name="noDataTimer">
-      <bpmn:incoming>Flow_0n6bvc8</bpmn:incoming>
-      <bpmn:outgoing>Flow_1yuqmc7</bpmn:outgoing>
-      <bpmn:timerEventDefinition id="TimerEventDefinition_0nmbk2j">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT10S</bpmn:timeDuration>
+    <bpmn:boundaryEvent id="Event_07saj4b" cancelActivity="false" attachedToRef="newSensorData">
+      <bpmn:outgoing>Flow_1qtg89a</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_10o2xe8">
+        <bpmn:timeCycle xsi:type="bpmn:tFormalExpression">R/PT3S</bpmn:timeCycle>
       </bpmn:timerEventDefinition>
-    </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="Flow_0n6bvc8" sourceRef="startEvent_1" targetRef="noDataTimer" />
-    <bpmn:sequenceFlow id="Flow_1yuqmc7" sourceRef="noDataTimer" targetRef="noDataReceived" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_1qtg89a" sourceRef="Event_07saj4b" targetRef="noDataReceived" />
     <bpmn:textAnnotation id="TextAnnotation_1vmd7gy">
       <bpmn:text>this will sit here until it's external sensor-data task is completed, or we time out</bpmn:text>
     </bpmn:textAnnotation>
@@ -189,9 +186,13 @@
   <bpmn:error id="Error_1n509jw" name="noSensorDataError" errorCode="404" camunda:errorMessage="No data was received before timeout" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="hydroponode">
-      <bpmndi:BPMNShape id="TextAnnotation_1vmd7gy_di" bpmnElement="TextAnnotation_1vmd7gy">
-        <dc:Bounds x="520" y="80" width="180" height="60" />
-      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_09jyd4n_di" bpmnElement="dataReceived">
+        <di:waypoint x="530" y="230" />
+        <di:waypoint x="650" y="230" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="556" y="212" width="68" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0pcrakd_di" bpmnElement="Flow_0pcrakd">
         <di:waypoint x="1240" y="600" />
         <di:waypoint x="1340" y="600" />
@@ -316,22 +317,10 @@
           <dc:Bounds x="340" y="213" width="49" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_09jyd4n_di" bpmnElement="dataReceived">
-        <di:waypoint x="530" y="230" />
-        <di:waypoint x="650" y="230" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="556" y="212" width="68" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0n6bvc8_di" bpmnElement="Flow_0n6bvc8">
-        <di:waypoint x="278" y="230" />
-        <di:waypoint x="320" y="230" />
-        <di:waypoint x="320" y="330" />
-        <di:waypoint x="362" y="330" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1yuqmc7_di" bpmnElement="Flow_1yuqmc7">
-        <di:waypoint x="398" y="330" />
-        <di:waypoint x="482" y="330" />
+      <bpmndi:BPMNEdge id="Flow_1qtg89a_di" bpmnElement="Flow_1qtg89a">
+        <di:waypoint x="480" y="172" />
+        <di:waypoint x="480" y="140" />
+        <di:waypoint x="438" y="140" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Event_1l287p1_di" bpmnElement="endEvent_1">
         <dc:Bounds x="1792" y="212" width="36" height="36" />
@@ -360,59 +349,14 @@
           <dc:Bounds x="1090" y="343" width="65" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0l8es0i_di" bpmnElement="waterService">
-        <dc:Bounds x="650" y="180" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0eccfud_di" bpmnElement="lightService">
-        <dc:Bounds x="1020" y="190" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_010rusf_di" bpmnElement="heatService1">
-        <dc:Bounds x="1290" y="190" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0ywfj9d_di" bpmnElement="startEvent_1">
-        <dc:Bounds x="242" y="212" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="242" y="258" width="36" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_1i0xme7_di" bpmnElement="noDataReceived">
-        <dc:Bounds x="482" y="312" width="36" height="36" />
+        <dc:Bounds x="402" y="122" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="459" y="355" width="82" height="14" />
+          <dc:Bounds x="379" y="98" width="82" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0yp8jdy_di" bpmnElement="newSensorData">
-        <dc:Bounds x="430" y="190" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0v3kmj6_di" bpmnElement="noDataTimer">
-        <dc:Bounds x="362" y="312" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="348" y="355" width="64" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_02e787d_di" bpmnElement="tooCold" isMarkerVisible="true">
-        <dc:Bounds x="1485" y="205" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1485" y="181" width="50" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gateway_0f771y2_di" bpmnElement="tooHot" isMarkerVisible="true">
-        <dc:Bounds x="1665" y="205" width="50" height="50" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1667" y="181" width="45" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0z8wuy9_di" bpmnElement="enableHeater">
-        <dc:Bounds x="1460" y="320" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1jx1fy4_di" bpmnElement="disableHeater">
-        <dc:Bounds x="1640" y="320" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0nfect6_di" bpmnElement="pump" isExpanded="true">
         <dc:Bounds x="160" y="485" width="730" height="320" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_1s3zje6_di" bpmnElement="TextAnnotation_1s3zje6">
-        <dc:Bounds x="690" y="657" width="150" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_06zqo69_di" bpmnElement="Flow_06zqo69">
         <di:waypoint x="660" y="565" />
@@ -477,14 +421,59 @@
       <bpmndi:BPMNShape id="Activity_0k3kuzn_di" bpmnElement="pumpStatusCheck">
         <dc:Bounds x="560" y="525" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_1s3zje6_di" bpmnElement="TextAnnotation_1s3zje6">
+        <dc:Bounds x="690" y="657" width="150" height="80" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_0vsnjj5_di" bpmnElement="Association_0vsnjj5">
         <di:waypoint x="628" y="649" />
         <di:waypoint x="690" y="662" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Gateway_02e787d_di" bpmnElement="tooCold" isMarkerVisible="true">
+        <dc:Bounds x="1485" y="205" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1485" y="181" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0f771y2_di" bpmnElement="tooHot" isMarkerVisible="true">
+        <dc:Bounds x="1665" y="205" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1667" y="181" width="45" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0z8wuy9_di" bpmnElement="enableHeater">
+        <dc:Bounds x="1460" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1jx1fy4_di" bpmnElement="disableHeater">
+        <dc:Bounds x="1640" y="320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ywfj9d_di" bpmnElement="startEvent_1">
+        <dc:Bounds x="242" y="212" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="242" y="258" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0l8es0i_di" bpmnElement="waterService">
+        <dc:Bounds x="650" y="180" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0eccfud_di" bpmnElement="lightService">
+        <dc:Bounds x="1020" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_010rusf_di" bpmnElement="heatService1">
+        <dc:Bounds x="1290" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0yp8jdy_di" bpmnElement="newSensorData">
+        <dc:Bounds x="430" y="190" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_1vmd7gy_di" bpmnElement="TextAnnotation_1vmd7gy">
+        <dc:Bounds x="520" y="80" width="180" height="60" />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_11ox28y_di" bpmnElement="Association_11ox28y">
         <di:waypoint x="514" y="190" />
         <di:waypoint x="557" y="140" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1k1o1sw_di" bpmnElement="Event_07saj4b">
+        <dc:Bounds x="462" y="172" width="36" height="36" />
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
