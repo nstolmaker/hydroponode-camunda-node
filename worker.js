@@ -1,6 +1,7 @@
 require('dotenv').config()
 const { child, exec } = require('child_process');
 const { Client, logger, Variables } = require('camunda-external-task-client-js');
+const { resolve } = require('path');
 
 
 // configuration for the Client:
@@ -9,6 +10,7 @@ const { Client, logger, Variables } = require('camunda-external-task-client-js')
 //  - 'asyncResponseTimeout': long polling timeout (then a new request will be issued)
 const config = { baseUrl: process.env.CAMUNDA_BASE_URL + '/engine-rest' || 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000 };
 
+console.log("Using Camunda Engine @ "+config.baseUrl)
 // create a Client instance with custom configuration
 const client = new Client(config);
 
@@ -76,6 +78,7 @@ client.subscribe('water-pump-ctrl-start', async function({ task, taskService }) 
   processVariables.set("pumpState", true)
 
   console.log(`water-pump-ctrl-start: pumpState = ${processVariables.get("pumpState")}`);
+  await new Promise(resolve=> setTimeout(resolve, 5000))
   await taskService.complete(task, processVariables);
 });
 

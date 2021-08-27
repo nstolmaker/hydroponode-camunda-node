@@ -20,20 +20,11 @@
     <bpmn:sequenceFlow id="notTooDry" name="notTooDry" sourceRef="needsWatering" targetRef="lightService">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${moisture&gt;=50}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:serviceTask id="waterService" name="Water Service" camunda:type="external" camunda:topic="sensor-data">
-      <bpmn:incoming>dataReceived</bpmn:incoming>
-      <bpmn:outgoing>seeIfNeedsWatering</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1u21dbm" sourceRef="lightService" targetRef="Gateway_066mvs1" />
     <bpmn:sendTask id="Activity_1qlkt46" name="Switch ON Light" camunda:type="external" camunda:topic="light-switch-ctrl-start">
       <bpmn:incoming>isDaytimeYes</bpmn:incoming>
       <bpmn:outgoing>Flow_0pcrakd</bpmn:outgoing>
     </bpmn:sendTask>
-    <bpmn:serviceTask id="lightService" name="Light Service" camunda:type="external" camunda:topic="sensor-data">
-      <bpmn:incoming>notTooDry</bpmn:incoming>
-      <bpmn:incoming>wateringServiceDone</bpmn:incoming>
-      <bpmn:outgoing>Flow_1u21dbm</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:exclusiveGateway id="isDaytime" name="Is it daytime?">
       <bpmn:incoming>needsLight</bpmn:incoming>
       <bpmn:outgoing>isDaytimeYes</bpmn:outgoing>
@@ -115,12 +106,6 @@
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="wateringServiceDone" name="Watering Service Done" sourceRef="pump" targetRef="lightService" />
     <bpmn:sequenceFlow id="checkIfNeedsHeater" name="See if Needs Heater" sourceRef="heatService1" targetRef="tooCold" />
-    <bpmn:serviceTask id="heatService1" name="Heat Service" camunda:type="external" camunda:topic="sensor-data">
-      <bpmn:incoming>isDaytimeNo</bpmn:incoming>
-      <bpmn:incoming>doesntNeedLight</bpmn:incoming>
-      <bpmn:incoming>Flow_0pcrakd</bpmn:incoming>
-      <bpmn:outgoing>checkIfNeedsHeater</bpmn:outgoing>
-    </bpmn:serviceTask>
     <bpmn:sequenceFlow id="isTooCold" name="isTooCold" sourceRef="tooCold" targetRef="enableHeater">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${temperature&lt;=72}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
@@ -159,8 +144,22 @@
         </camunda:formData>
       </bpmn:extensionElements>
       <bpmn:outgoing>dataReceived</bpmn:outgoing>
-      <bpmn:signalEventDefinition id="dataReceivedSignalEvent" signalRef="dataReceivedSignal" />
     </bpmn:startEvent>
+    <bpmn:task id="waterService" name="Water Service">
+      <bpmn:incoming>dataReceived</bpmn:incoming>
+      <bpmn:outgoing>seeIfNeedsWatering</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="lightService" name="Light Service">
+      <bpmn:incoming>notTooDry</bpmn:incoming>
+      <bpmn:incoming>wateringServiceDone</bpmn:incoming>
+      <bpmn:outgoing>Flow_1u21dbm</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="heatService1" name="Heat Service">
+      <bpmn:incoming>isDaytimeNo</bpmn:incoming>
+      <bpmn:incoming>doesntNeedLight</bpmn:incoming>
+      <bpmn:incoming>Flow_0pcrakd</bpmn:incoming>
+      <bpmn:outgoing>checkIfNeedsHeater</bpmn:outgoing>
+    </bpmn:task>
   </bpmn:process>
   <bpmn:message id="Message_0in6o7o" />
   <bpmn:signal id="dataReceivedSignal" name="New Sensor Data Received" />
@@ -308,20 +307,29 @@
           <dc:Bounds x="1159" y="81" width="62" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1lhls6v_di" bpmnElement="waterService">
-        <dc:Bounds x="650" y="80" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1qlkt46_di" bpmnElement="Activity_1qlkt46">
         <dc:Bounds x="1140" y="460" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0ltgjuv_di" bpmnElement="lightService">
-        <dc:Bounds x="1020" y="90" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1nya1gg_di" bpmnElement="isDaytime" isMarkerVisible="true">
         <dc:Bounds x="1165" y="225" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1089.5" y="243" width="65" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ywfj9d_di" bpmnElement="startEvent_1">
+        <dc:Bounds x="533" y="112" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="514" y="158" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0l8es0i_di" bpmnElement="waterService">
+        <dc:Bounds x="650" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0eccfud_di" bpmnElement="lightService">
+        <dc:Bounds x="1020" y="90" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_010rusf_di" bpmnElement="heatService1">
+        <dc:Bounds x="1290" y="90" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0nfect6_di" bpmnElement="pump" isExpanded="true">
         <dc:Bounds x="160" y="385" width="730" height="320" />
@@ -408,20 +416,11 @@
           <dc:Bounds x="1667" y="81" width="45" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0suxrbn_di" bpmnElement="heatService1">
-        <dc:Bounds x="1290" y="90" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0z8wuy9_di" bpmnElement="enableHeater">
         <dc:Bounds x="1460" y="220" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1jx1fy4_di" bpmnElement="disableHeater">
         <dc:Bounds x="1640" y="220" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0tpkl2y_di" bpmnElement="startEvent_1">
-        <dc:Bounds x="533" y="112" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="514" y="158" width="73" height="14" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
