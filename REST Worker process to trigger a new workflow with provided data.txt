@@ -1,0 +1,35 @@
+REST Worker process to trigger a new workflow using provided data
+
+// maybe it's easier to just trigger a start with the data:
+
+POST /process-definition/key/hydroponode/start
+
+Request body:
+
+{"variables":
+  {
+    "moisture": {"value": 98, "type": "Integer"},
+    "light": {"value": 97, "type": "Integer"},
+    "temperature": {"value": 96, "type": "Integer"}
+  },
+  "businessKey" : "myBusinessKey"
+}
+
+RETURNS:
+
+{
+   "links":[
+      {
+         "method":"GET",
+         "href":"http://localhost:8080/engine-rest/process-instance/3f1be0c5-06c8-11ec-a887-0242ac110002",
+         "rel":"self"
+      }
+   ],
+   "id":"3f1be0c5-06c8-11ec-a887-0242ac110002",
+   "definitionId":"hydroponode:17:8698d8cf-05c6-11ec-a887-0242ac110002",
+   "businessKey":"myBusinessKey",
+   "caseInstanceId":null,
+   "ended":false,
+   "suspended":false,
+   "tenantId":null
+}

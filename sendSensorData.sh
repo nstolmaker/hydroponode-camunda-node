@@ -79,7 +79,7 @@ id= 910819ca-06bf-11ec-a887-0242ac110002
 POST /execution/910819ca-06bf-11ec-a887-0242ac110002/signal
 http://localhost:8080/engine-rest/execution/910819ca-06bf-11ec-a887-0242ac110002/signal
 or 
-http://localhost:8080/engine-rest/execution/910819ca-06bf-11ec-a887-0242ac110002/sensor-data/trigger
+http://localhost:8080/engine-rest/execution/9111b6c2-06bf-11ec-a887-0242ac110002/messageSubscriptions/sensor-data/trigger
 
 Request body:
 

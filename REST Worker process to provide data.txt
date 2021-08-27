@@ -1,0 +1,75 @@
+REST Worker process to provide data:
+
+1. Get and lock external task with sensor-data as topicName:
+
+POST  http://localhost:8080/engine-rest/external-task/fetchAndLock
+BODY:
+    {
+      "workerId":"aWorkerId",
+      "maxTasks":1,
+	  "usePriority":true,
+      "topics":
+          [{"topicName": "sensor-data",
+          "lockDuration": 10000,
+          "variables": ["light"]
+          }]
+    }
+
+RETURNS:
+
+[
+   {
+      "activityId":"waterService",
+      "activityInstanceId":"waterService:911204e3-06bf-11ec-a887-0242ac110002",
+      "errorMessage":null,
+      "errorDetails":null,
+      "executionId":"9111b6c2-06bf-11ec-a887-0242ac110002",
+      "id":"9112a124-06bf-11ec-a887-0242ac110002",
+      "lockExpirationTime":"2021-08-26T23:34:59.071+0000",
+      "processDefinitionId":"hydroponode:17:8698d8cf-05c6-11ec-a887-0242ac110002",
+      "processDefinitionKey":"hydroponode",
+      "processDefinitionVersionTag":null,
+      "processInstanceId":"910819ca-06bf-11ec-a887-0242ac110002",
+      "retries":null,
+      "suspended":false,
+      "workerId":"aWorkerId",
+      "topicName":"sensor-data",
+      "tenantId":null,
+      "variables":{
+         "light":{
+            "type":"Long",
+            "value":50,
+            "valueInfo":{
+               
+            }
+         }
+      },
+      "priority":0,
+      "businessKey":null,
+      "extensionProperties":{
+         
+      }
+   }
+]
+
+save the id
+id = 9112a124-06bf-11ec-a887-0242ac110002
+
+
+2. complete the task with data:
+
+POST /external-task/9b1a6d17-06cf-11ec-a887-0242ac110002/complete
+
+Request Body:
+
+    {
+      "workerId": "aWorkerId",
+      "variables":
+      {
+        "moisture": {"value": 98, "type": "Integer"},
+        "light": {"value": 97, "type": "Integer"},
+        "temperature": {"value": 96, "type": "Integer"}
+      },
+      "localVariables":
+          {"aLocalVariable": {"value": "aStringValue"}}
+    }
