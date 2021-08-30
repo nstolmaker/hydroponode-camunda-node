@@ -1,5 +1,6 @@
 require('dotenv').config()
-const { child, exec } = require('child_process');
+const execAsync = require('util').promisify(require('child_process').exec);
+// const { child, exec } = require('child_process');
 const { Client, logger, Variables } = require('camunda-external-task-client-js');
 const { resolve } = require('path');
 
@@ -25,8 +26,9 @@ const SwitchIpFromName = {
  * 
  */
  async function getSwitchStatus(ip) {
-  // console.log("About to run: ", `./tplink_smartplug.py -t ${ip} -qc info`)
-  exec(`./tplink_smartplug.py -t ${ip} -qc info`, async (error, stdout, stderr) => {
+  console.log("About to run: ", `./tplink_smartplug.py -t ${ip} -qc info`)
+  try {
+   const { error, stdout, stderr } = await execAsync(`./tplink_smartplug.py -t ${ip} -qc info`)
     if (error) {
         console.log(`error: ${error.message}`);
         return 'fail!!!!';
@@ -37,8 +39,10 @@ const SwitchIpFromName = {
     }
     const r = JSON.parse(stdout)
     return r.system.get_sysinfo.relay_state === 1 ? true : false
-  });
-  return false
+  } catch (e) {
+    console.error(e); // should contain code (exit code) and signal (that caused the termination).
+    return false
+  }
 }
 
 
@@ -53,7 +57,8 @@ const SwitchIpFromName = {
   // console.log("About to run: ", `./tplink_smartplug.py -t ${ip} -qc info`)
   const ip = SwitchIpFromName[switchName]
   const newStateString = newState ? 'on' : 'off'
-  /* exec(`./tplink_smartplug.py -t ${ip} -c ${newStateString}`, async (error, stdout, stderr) => {
+  try {
+    const { error, stdout, stderr } = await execAsync(`./tplink_smartplug.py -t ${ip} -c ${newStateString}`)
     if (error) {
         console.log(`error: ${error.message}`);
         return 'fail!!!!';
@@ -62,11 +67,12 @@ const SwitchIpFromName = {
         console.log(`stderr: ${stderr}`);
         return 'fail!!!';
     }
-  });
-  */
-
-  console.log(`[${new Date().toLocaleString()}] {setSwitchStatus} switchName=${switchName} newState=${newStateString}`);
-  return
+    console.log(`[${new Date().toLocaleString()}] {setSwitchStatus} switchName=${switchName} newState=${newStateString}`);
+    return true
+  } catch (e) {
+    console.error(e); // should contain code (exit code) and signal (that caused the termination).
+    return false
+  }
 }
 
 
@@ -74,10 +80,10 @@ const SwitchIpFromName = {
  * sensor-data
  */
  client.subscribe('sensor-data', async function({ task, taskService }) {
-  const temperature = task.variables.get('temperature');
-  console.log(`[${new Date().toLocaleString()}] {get-sensor-data} task.businessKey=${task.businessKey}`);
-  console.log(`[${new Date().toLocaleString()}] {get-sensor-data} Running with new sensor-data: `, { temperature });
-  await taskService.complete(task);
+  // const temperature = task.variables.get('temperature');
+  // console.log(`[${new Date().toLocaleString()}] {sensor-data} task.businessKey=${task.businessKey}`);
+  // console.log(`[${new Date().toLocaleString()}] {sensor-data} Running with new sensor-data: `, { temperature });
+  // await taskService.complete(task);
 });
 
 /**
@@ -85,11 +91,11 @@ const SwitchIpFromName = {
  */
  client.subscribe('heater-switch-state', async function({ task, taskService }) {
   const switchStatus = await getSwitchStatus(SwitchIpFromName['heater'])
-  console.log(`[${new Date().toLocaleString()}] {switch-status-pump} called, which runs on IP: ${SwitchIpFromName['heater']}. pumpStatus=${switchStatus}`);
+  console.log(`[${new Date().toLocaleString()}] {heater-switch-state} called for HEATER., which runs on IP: ${SwitchIpFromName['heater']}. Queried value says: switchStatus=${switchStatus}`);
 
 
   const processVariables = new Variables();
-  processVariables.set("heaterState", true)
+  processVariables.set("heaterState", switchStatus)
   await taskService.complete(task, processVariables);
 });
 
@@ -98,7 +104,7 @@ const SwitchIpFromName = {
  * heater-on
  */
  client.subscribe('heater-on', async function({ task, taskService }) {
-  setSwitchStatus("heater", true)
+  await setSwitchStatus("heater", true)
   console.log(`[${new Date().toLocaleString()}] {heater-on} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to true`);
   await taskService.complete(task);
 });

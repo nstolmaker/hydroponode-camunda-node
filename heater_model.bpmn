@@ -19,7 +19,7 @@
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Activity_0e3c704" name="Heat Switch Status" camunda:type="external" camunda:topic="heater-switch-state">
       <bpmn:incoming>Flow_10gu2ut</bpmn:incoming>
-      <bpmn:incoming>Flow_0kucapv</bpmn:incoming>
+      <bpmn:incoming>Flow_19mq8fv</bpmn:incoming>
       <bpmn:outgoing>Flow_0cmpp7f</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:exclusiveGateway id="Gateway_0btjy93" name="Too Cold?">
@@ -62,7 +62,7 @@
       <bpmn:incoming>Flow_1devodh</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1y4rj26" messageRef="Message_0hybpt8" camunda:type="external" camunda:topic="temp-warning" />
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0kucapv" sourceRef="Activity_0futvbv" targetRef="Activity_0e3c704" />
+    <bpmn:sequenceFlow id="Flow_0kucapv" sourceRef="Activity_0futvbv" targetRef="Event_19bl948" />
     <bpmn:serviceTask id="Activity_1wdksim" name="Heat Switch Status" camunda:type="external" camunda:topic="heater-switch-state">
       <bpmn:incoming>Flow_1qv3yrc</bpmn:incoming>
       <bpmn:incoming>Flow_1wpuo0o</bpmn:incoming>
@@ -118,6 +118,14 @@
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_1wpuo0o" sourceRef="Event_1m4vere" targetRef="Activity_1wdksim" />
+    <bpmn:intermediateCatchEvent id="Event_19bl948">
+      <bpmn:incoming>Flow_0kucapv</bpmn:incoming>
+      <bpmn:outgoing>Flow_19mq8fv</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_1k1gtn4">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT10S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:sequenceFlow id="Flow_19mq8fv" sourceRef="Event_19bl948" targetRef="Activity_0e3c704" />
   </bpmn:process>
   <bpmn:message id="Message_0hybpt8" name="TEMP_WARNING" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
@@ -176,8 +184,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0kucapv_di" bpmnElement="Flow_0kucapv">
         <di:waypoint x="780" y="290" />
-        <di:waypoint x="700" y="290" />
-        <di:waypoint x="700" y="217" />
+        <di:waypoint x="718" y="290" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1devodh_di" bpmnElement="Flow_1devodh">
         <di:waypoint x="950" y="202" />
@@ -238,6 +245,10 @@
       <bpmndi:BPMNEdge id="Flow_1wpuo0o_di" bpmnElement="Flow_1wpuo0o">
         <di:waypoint x="700" y="505" />
         <di:waypoint x="700" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19mq8fv_di" bpmnElement="Flow_19mq8fv">
+        <di:waypoint x="700" y="272" />
+        <di:waypoint x="700" y="217" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="179" y="159" width="36" height="36" />
@@ -316,6 +327,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_0j7lbl3_di" bpmnElement="Event_1m4vere">
         <dc:Bounds x="692" y="502" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19bl948_di" bpmnElement="Event_19bl948">
+        <dc:Bounds x="682" y="272" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
