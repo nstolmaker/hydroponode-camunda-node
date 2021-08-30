@@ -141,4 +141,3 @@ client.subscribe('heat-ctrl-stop', async function({ task, taskService }) {
   await taskService.complete(task, processVariables);
 });
 
-
