@@ -84,8 +84,8 @@ const SwitchIpFromName = {
  * heater-switch-state
  */
  client.subscribe('heater-switch-state', async function({ task, taskService }) {
-  const switchStatus = await getSwitchStatus(SwitchIpFromName['pump'])
-  console.log(`[${new Date().toLocaleString()}] {switch-status-pump} called, which runs on IP: ${SwitchIpFromName['pump']}. pumpStatus=${switchStatus}`);
+  const switchStatus = await getSwitchStatus(SwitchIpFromName['heater'])
+  console.log(`[${new Date().toLocaleString()}] {switch-status-pump} called, which runs on IP: ${SwitchIpFromName['heater']}. pumpStatus=${switchStatus}`);
 
 
   const processVariables = new Variables();
