@@ -9,7 +9,7 @@ const { resolve } = require('path');
 //  - 'baseUrl': url to the Process Engine
 //  - 'logger': utility to automatically log important events
 //  - 'asyncResponseTimeout': long polling timeout (then a new request will be issued)
-const config = { baseUrl: process.env.CAMUNDA_BASE_URL + '/engine-rest' || 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000 };
+const config = { baseUrl: process.env.CAMUNDA_BASE_URL + '/engine-rest' || 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000, workerId: 'tuesdayWorker' };
 
 console.log("Using Camunda Engine @ "+config.baseUrl)
 // create a Client instance with custom configuration
@@ -79,12 +79,12 @@ const SwitchIpFromName = {
 /**
  * sensor-data
  */
- client.subscribe('sensor-data', async function({ task, taskService }) {
+//  client.subscribe('sensor-data', async function({ task, taskService }) {
   // const temperature = task.variables.get('temperature');
   // console.log(`[${new Date().toLocaleString()}] {sensor-data} task.businessKey=${task.businessKey}`);
   // console.log(`[${new Date().toLocaleString()}] {sensor-data} Running with new sensor-data: `, { temperature });
   // await taskService.complete(task);
-});
+// });
 
 /**
  * heater-switch-state
