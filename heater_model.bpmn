@@ -23,7 +23,6 @@
     <bpmn:sequenceFlow id="Flow_0cmpp7f" sourceRef="Activity_0e3c704" targetRef="Gateway_00gjqmc" />
     <bpmn:serviceTask id="Activity_0futvbv" name="Switch On Heater" camunda:type="external" camunda:topic="heater-on">
       <bpmn:incoming>Flow_1y1z2rc</bpmn:incoming>
-      <bpmn:outgoing>Flow_0kucapv</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:exclusiveGateway id="Gateway_00gjqmc" name="Heater Switch State">
       <bpmn:incoming>Flow_0cmpp7f</bpmn:incoming>
@@ -54,7 +53,6 @@
       <bpmn:incoming>Flow_1devodh</bpmn:incoming>
       <bpmn:messageEventDefinition id="MessageEventDefinition_1y4rj26" messageRef="Message_0hybpt8" camunda:type="external" camunda:topic="temp-warning" />
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0kucapv" sourceRef="Activity_0futvbv" targetRef="Event_19bl948" />
     <bpmn:serviceTask id="Activity_1wdksim" name="Heat Switch Status" camunda:type="external" camunda:topic="heater-switch-state">
       <bpmn:incoming>Flow_1wpuo0o</bpmn:incoming>
       <bpmn:incoming>Flow_0m3kf0u</bpmn:incoming>
@@ -88,33 +86,17 @@
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Activity_1ibcyzf" name="Switch Off Heater" camunda:type="external" camunda:topic="heater-off">
       <bpmn:incoming>Flow_1eme8vb</bpmn:incoming>
-      <bpmn:outgoing>Flow_05eg7wi</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:sequenceFlow id="Flow_1eme8vb" name="On" sourceRef="Gateway_0l6sbgp" targetRef="Activity_1ibcyzf">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${heaterState}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_05eg7wi" sourceRef="Activity_1ibcyzf" targetRef="Event_1m4vere" />
     <bpmn:endEvent id="Event_0uepcv3" name="Temps are okay, no action taken">
       <bpmn:incoming>Flow_00h5ie9</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_00h5ie9" name="No" sourceRef="Gateway_0477bna" targetRef="Event_0uepcv3">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${temperature&lt;=82}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:intermediateCatchEvent id="Event_1m4vere">
-      <bpmn:incoming>Flow_05eg7wi</bpmn:incoming>
-      <bpmn:outgoing>Flow_1wpuo0o</bpmn:outgoing>
-      <bpmn:timerEventDefinition id="TimerEventDefinition_02ckoe4">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT10S</bpmn:timeDuration>
-      </bpmn:timerEventDefinition>
-    </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_1wpuo0o" sourceRef="Event_1m4vere" targetRef="Activity_1wdksim" />
-    <bpmn:intermediateCatchEvent id="Event_19bl948">
-      <bpmn:incoming>Flow_0kucapv</bpmn:incoming>
-      <bpmn:outgoing>Flow_19mq8fv</bpmn:outgoing>
-      <bpmn:timerEventDefinition id="TimerEventDefinition_1k1gtn4">
-        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT10S</bpmn:timeDuration>
-      </bpmn:timerEventDefinition>
-    </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="Flow_19mq8fv" sourceRef="Event_19bl948" targetRef="Activity_0e3c704" />
     <bpmn:startEvent id="StartEvent_1" name="Heat Manager" camunda:formKey="heat">
       <bpmn:extensionElements>
@@ -154,6 +136,18 @@
         <bpmn:outgoing>Flow_03vybx3</bpmn:outgoing>
       </bpmn:serviceTask>
     </bpmn:subProcess>
+    <bpmn:boundaryEvent id="Event_19bl948" attachedToRef="Activity_0futvbv">
+      <bpmn:outgoing>Flow_19mq8fv</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_111c6m3">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT10S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Event_1m4vere" attachedToRef="Activity_1ibcyzf">
+      <bpmn:outgoing>Flow_1wpuo0o</bpmn:outgoing>
+      <bpmn:timerEventDefinition id="TimerEventDefinition_0bblz5f">
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT10S</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:boundaryEvent>
   </bpmn:process>
   <bpmn:message id="Message_0hybpt8" name="TEMP_WARNING" />
   <bpmn:error id="Error_146wubl" name="Error_sensor_wait_timeout" errorCode="100" camunda:errorMessage="Waited 5 minutes but got no data" />
@@ -167,11 +161,13 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_19mq8fv_di" bpmnElement="Flow_19mq8fv">
-        <di:waypoint x="830" y="272" />
+        <di:waypoint x="892" y="290" />
+        <di:waypoint x="830" y="290" />
         <di:waypoint x="830" y="217" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1wpuo0o_di" bpmnElement="Flow_1wpuo0o">
-        <di:waypoint x="830" y="505" />
+        <di:waypoint x="892" y="520" />
+        <di:waypoint x="830" y="520" />
         <di:waypoint x="830" y="440" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_00h5ie9_di" bpmnElement="Flow_00h5ie9">
@@ -180,10 +176,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="648" y="466" width="15" height="14" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_05eg7wi_di" bpmnElement="Flow_05eg7wi">
-        <di:waypoint x="910" y="520" />
-        <di:waypoint x="858" y="520" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1eme8vb_di" bpmnElement="Flow_1eme8vb">
         <di:waypoint x="960" y="425" />
@@ -225,10 +217,6 @@
       <bpmndi:BPMNEdge id="Flow_1cyfttq_di" bpmnElement="Flow_1cyfttq">
         <di:waypoint x="880" y="400" />
         <di:waypoint x="935" y="400" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_0kucapv_di" bpmnElement="Flow_0kucapv">
-        <di:waypoint x="910" y="290" />
-        <di:waypoint x="848" y="290" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1devodh_di" bpmnElement="Flow_1devodh">
         <di:waypoint x="1080" y="202" />
@@ -352,12 +340,6 @@
           <dc:Bounds x="600" y="565" width="80" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_0j7lbl3_di" bpmnElement="Event_1m4vere">
-        <dc:Bounds x="822" y="502" width="36" height="36" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Event_19bl948_di" bpmnElement="Event_19bl948">
-        <dc:Bounds x="812" y="272" width="36" height="36" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Event_141b9il_di" bpmnElement="StartEvent_1">
         <dc:Bounds x="309" y="159" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -401,6 +383,12 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="440" y="242" width="81" height="14" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0lpdcfs_di" bpmnElement="Event_19bl948">
+        <dc:Bounds x="892" y="272" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_171ir7p_di" bpmnElement="Event_1m4vere">
+        <dc:Bounds x="892" y="502" width="36" height="36" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
