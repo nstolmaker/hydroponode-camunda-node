@@ -114,9 +114,29 @@ const SwitchIpFromName = {
  * heater-off
  */
  client.subscribe('heater-off', async function({ task, taskService }) {
-  setSwitchStatus("heater", false)
-  console.log(`[${new Date().toLocaleString()}] {heater-off} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to false`);
-  await taskService.complete(task);
+  let retriesLeft = task.variables.get('heaterSwitchRetries');
+  console.log(`[${new Date().toLocaleString()}] {heater-off} retriesLeft (from task)=${retriesLeft}.`);
+  if (typeof retriesLeft === 'undefined') {
+    retriesLeft = 3
+  }
+  retriesLeft--;
+  console.log(`[${new Date().toLocaleString()}] {heater-off} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to false. retriesLeft=${retriesLeft}.`);
+  // TODO setSwitchStatus("heater", false)
+  const processVariables = new Variables();
+  processVariables.set("heaterSwitchRetries", retriesLeft);
+  
+  if (parseInt(retriesLeft) <= 0) {
+    const tempVal = task.variables.get('temperature')
+    console.log(`[${new Date().toLocaleString()}] {heater-off} Out of retries, we should throw an error. UNABLE TO CONFIRM SWITCH STATE CHANGE TO OFF: temp: ${tempVal} retriesLeft=${retriesLeft}.`);
+    // TODO send a message.
+    await taskService.handleFailure(task, {
+      errorMessage: "Error turning off heater. Retried 3 times. Something is wrong!",
+      errorDetails: `Temp is currently: ${tempVal}`,
+      retries: 0
+    });
+  } else {
+    await taskService.complete(task, processVariables);
+  }
 });
 
 
@@ -125,9 +145,20 @@ const SwitchIpFromName = {
  * temp-warning
  */
  client.subscribe('temp-warning', async function({ task, taskService }) {
-   const tempVal = task.variables.get('temperature')
-  console.log(`[${new Date().toLocaleString()}] {temp-warning} called, temperature is out of bounds, currently: ${tempVal}`);
-  await taskService.complete(task);
+  const tempVal = task.variables.get('temperature')
+ console.log(`[${new Date().toLocaleString()}] {temp-warning} called, temperature is out of bounds, currently: ${tempVal}`);
+ await taskService.complete(task);
+});
+
+
+
+/**
+ * water-plant
+ */
+ client.subscribe('water-plant', async function({ task, taskService }) {
+  const moistureVal = task.variables.get('moisture')
+ console.log(`[${new Date().toLocaleString()}] {water-plant} called, moisture should be too low. currently: ${moistureVal}`);
+ await taskService.complete(task);
 });
 
 
