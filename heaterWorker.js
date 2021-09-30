@@ -3,7 +3,7 @@ const execAsync = require('util').promisify(require('child_process').exec);
 // const { child, exec } = require('child_process');
 const { Client, logger, Variables } = require('camunda-external-task-client-js');
 const { resolve } = require('path');
-
+const Notifier = require('./services/Notifier.js')
 
 // configuration for the Client:
 //  - 'baseUrl': url to the Process Engine
@@ -11,7 +11,7 @@ const { resolve } = require('path');
 //  - 'asyncResponseTimeout': long polling timeout (then a new request will be issued)
 const config = { baseUrl: process.env.CAMUNDA_BASE_URL + '/engine-rest' || 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000};
 
-console.log("Using Camunda Engine @ "+config.baseUrl)
+console.log("[${new Date().toLocaleString()}] WORKER STARTED. Using Camunda Engine @ "+config.baseUrl)
 // create a Client instance with custom configuration
 const client = new Client(config);
 
@@ -104,39 +104,24 @@ const SwitchIpFromName = {
  * heater-on
  */
  client.subscribe('heater-on', async function({ task, taskService }) {
-  await setSwitchStatus("heater", true)
   console.log(`[${new Date().toLocaleString()}] {heater-on} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to true`);
-  await taskService.complete(task);
+  await setSwitchStatus("heater", true)
+  const processVariables = new Variables();
+  processVariables.set("statusShouldBe", 'true');
+  console.log(`[${new Date().toLocaleString()}] {heater-on} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to true`);
+  await taskService.complete(task, processVariables);
 });
 
 
 /**
  * heater-off
  */
- client.subscribe('heater-off', async function({ task, taskService }) {
-  let retriesLeft = task.variables.get('heaterSwitchRetries');
-  console.log(`[${new Date().toLocaleString()}] {heater-off} retriesLeft (from task)=${retriesLeft}.`);
-  if (typeof retriesLeft === 'undefined') {
-    retriesLeft = 3
-  }
-  retriesLeft--;
-  console.log(`[${new Date().toLocaleString()}] {heater-off} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to false. retriesLeft=${retriesLeft}.`);
-  // TODO setSwitchStatus("heater", false)
+client.subscribe('heater-off', async function({ task, taskService }) {
+  console.log(`[${new Date().toLocaleString()}] {heater-off} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to false.`);
+  setSwitchStatus("heater", false)
   const processVariables = new Variables();
-  processVariables.set("heaterSwitchRetries", retriesLeft);
-  
-  if (parseInt(retriesLeft) <= 0) {
-    const tempVal = task.variables.get('temperature')
-    console.log(`[${new Date().toLocaleString()}] {heater-off} Out of retries, we should throw an error. UNABLE TO CONFIRM SWITCH STATE CHANGE TO OFF: temp: ${tempVal} retriesLeft=${retriesLeft}.`);
-    // TODO send a message.
-    await taskService.handleFailure(task, {
-      errorMessage: "Error turning off heater. Retried 3 times. Something is wrong!",
-      errorDetails: `Temp is currently: ${tempVal}`,
-      retries: 0
-    });
-  } else {
-    await taskService.complete(task, processVariables);
-  }
+  processVariables.set("statusShouldBe", 'false');
+  await taskService.complete(task, processVariables);
 });
 
 
@@ -145,9 +130,17 @@ const SwitchIpFromName = {
  * temp-warning
  */
  client.subscribe('temp-warning', async function({ task, taskService }) {
-  const tempVal = task.variables.get('temperature')
- console.log(`[${new Date().toLocaleString()}] {temp-warning} called, temperature is out of bounds, currently: ${tempVal}`);
- await taskService.complete(task);
+  const tempVal = task.variables.get('temperature');
+  console.log(`[${new Date().toLocaleString()}] {temp-warning} called, temperature is out of bounds, currently: ${tempVal}`);
+  const notifierClient = new Notifier();
+  const errorMessage = `[TEMP WARNING] temperature is out of bounds, currently: ${tempVal}`;
+  await notifierClient.sendNotification(errorMessage)
+  await taskService.handleFailure(task, {
+    errorMessage,
+    errorDetails: `Temp is currently: ${tempVal}`,
+    retries: 0
+  });
+  //  await taskService.complete(task);
 });
 
 
@@ -157,9 +150,36 @@ const SwitchIpFromName = {
  */
  client.subscribe('water-plant', async function({ task, taskService }) {
   const moistureVal = task.variables.get('moisture')
- console.log(`[${new Date().toLocaleString()}] {water-plant} called, moisture should be too low. currently: ${moistureVal}`);
- await taskService.complete(task);
+  console.log(`[${new Date().toLocaleString()}] {water-plant} called, moisture should be too low. currently: ${moistureVal}`);
+  const notifierClient = new Notifier();
+  const msg = `[${new Date().toLocaleString()}] Watering plant. currently: ${moistureVal}`;
+  await notifierClient.sendNotification(msg)
+  await taskService.complete(task);
 });
+
+
+/**
+ * confirm-heater-state
+ */
+ client.subscribe('confirm-heater-state', async function({ task, taskService }) {
+  const switchStatus = await getSwitchStatus(SwitchIpFromName['heater'])
+  const statusShouldBe = task.variables.get('statusShouldBe')
+  console.log(`[${new Date().toLocaleString()}] {confirm-heater-state} called for HEATER., which runs on IP: ${SwitchIpFromName['heater']}. Queried value says: switchStatus=${switchStatus}. statusShouldBe=${statusShouldBe}`);
+  if (switchStatus.toString() === statusShouldBe.toString()) {
+    await taskService.complete(task);
+  } else {
+    const notifierClient = new Notifier();
+    const errorMessage = `[${new Date().toLocaleString()}] {confirm-heater-state} CHECK FAILED! Error changing state of heater while trying to change it to ${statusShouldBe}. Currently it's ${switchStatus}. Try agai...!`
+    await notifierClient.sendNotification(errorMessage)
+    await taskService.handleFailure(task, {
+      errorMessage,
+      errorDetails: `Temp is currently: ${tempVal}`,
+      retries: 1,
+      retryTimeout: 10 * 1000
+    });
+  }
+});
+
 
 
 
