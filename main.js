@@ -1,9 +1,7 @@
 require('dotenv').config()
+const { Client, logger } = require('camunda-external-task-client-js');
+const { Consts, setSwitchStatus, getSwitchStatus, SwitchIpFromName } = require('./util.js')
 
-const { Consts, setSwitchStatus, getSwitchStatus, SwitchIpFromName } = require('../util.js')
-
-const Lights = require('./services/Lights.js')
-const Notifier = require('./services/Notifier.js')
 const WorkflowSubscriptions = require('./services/WorkflowSubscriptions.js')
 
 // configuration for the Client:

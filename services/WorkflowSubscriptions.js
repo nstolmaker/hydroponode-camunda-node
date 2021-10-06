@@ -1,5 +1,6 @@
 require('dotenv').config()
-const { modulePaths } = require('../jest.config.js');
+const Lights = require('../services/Lights.js')
+const Notifier = require('../services/Notifier.js')
 const { setSwitchStatus, getSwitchStatus, SwitchIpFromName } = require('../util.js')
 
 class WorkflowSubscriptions {
@@ -190,15 +191,16 @@ class WorkflowSubscriptions {
      */
     client.subscribe('confirm-light-state', async function({ task, taskService }) {
       const switchStatus = await getSwitchStatus(SwitchIpFromName['light'])
-      const statusShouldBe = task.variables.get('lightStateShouldBe')
-      console.log(`[${new Date().toLocaleString()}] {confirm-light-state} called for LIGHT, which runs on IP: ${SwitchIpFromName['light']}. Queried value says: switchStatus=${switchStatus}`);
-
-      if (switchStatus.toString() === statusShouldBe.toString()) {
+      const statusShouldBe = await task.variables.get('lightStateShouldBe') || null
+      console.log(`[${new Date().toLocaleString()}] {confirm-light-state} called for LIGHT, which runs on IP: ${SwitchIpFromName['light']}. Queried value says: switchStatus=${switchStatus}. statusShouldBe=${statusShouldBe}`);
+      // console.log(`testing if: ${switchStatus.toString()} === ${statusShouldBe?.toString()}`)
+      if (statusShouldBe !== null && switchStatus.toString() === statusShouldBe.toString()) {
         console.log(`[${new Date().toLocaleString()}] {confirm-light-state} is correct.`)
         await taskService.complete(task);
       } else {
-        const notifierClient = new Notifier();
         const errorMessage = `[${new Date().toLocaleString()}] {confirm-light-state} CHECK FAILED! Error changing state of lights while trying to change it to ${statusShouldBe}. Currently it's ${switchStatus}. Try again...!`
+        // console.log(errorMessage)
+        const notifierClient = new Notifier();
         await notifierClient.sendNotification(errorMessage)
         await taskService.handleFailure(task, {
           errorMessage,
@@ -208,7 +210,6 @@ class WorkflowSubscriptions {
         });
       }
     });
-
 
 
     /**
