@@ -10,8 +10,6 @@ class WorkflowSubscriptions {
   heaterSwitchState = async function({ task, taskService }) {
     const switchStatus = await getSwitchStatus(SwitchIpFromName['heater'])
     console.log(`[${new Date().toLocaleString()}] {heater-switch-state} called for HEATER., which runs on IP: ${SwitchIpFromName['heater']}. Queried value says: switchStatus=${switchStatus}`);
-
-
     const processVariables = new Variables();
     processVariables.set("heaterState", switchStatus)
     await taskService.complete(task, processVariables);
@@ -24,7 +22,6 @@ class WorkflowSubscriptions {
     await setSwitchStatus("heater", true)
     const processVariables = new Variables();
     processVariables.set("statusShouldBe", 'true');
-    console.log(`[${new Date().toLocaleString()}] {heater-on} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to true`);
     await taskService.complete(task, processVariables);
   }
   /**
