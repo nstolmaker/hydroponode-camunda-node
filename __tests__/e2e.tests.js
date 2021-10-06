@@ -17,39 +17,9 @@ beforeEach(() => {
 })
 
 
-afterEach(() => {
+afterAll(() => {
   client.stop();
 });
-
-
-// test('Garden Path - no changes required', async () => {
-//   // first, define some sensor data
-//   const sensorData = {
-//     moisture: '70',
-//     light: '100',
-//     temperature: '76',
-//     battery: '100'
-//   }
-//   const topicName = "sensor-data";
-
-//   // start a new camunda process
-//   const newProcessResp = await startNewProcess();
-//   expect(newProcessResp.status).toBe(200);  // there should not be a server error
-//   expect(newProcessResp.data.id).toBeTruthy() // there should be a new process id returned.
-
-//   // now fetch and lock one task waiting for sensor-data
-//   const lockResp = await fetchAndLock(topicName)
-//   expect(lockResp.status).toBe(200);
-//   const sensorDataExternalTaskId = lockResp.data.id;
-//   expect(sensorDataExternalTaskId).toBeTruthy();
-
-
-//   // now send in the sensor data
-//   const sendSensorDataResp = await sendSensorData(sensorDataExternalTaskId, sensorData)
-//   expect(sendSensorDataResp.status).toBe(204);
-
-// });
-
 
 
 describe('Temp is too low and heater is off', () => {

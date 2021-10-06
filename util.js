@@ -79,7 +79,7 @@ const SwitchIpFromName = {
 }
 
 // function safeParse(str:string, parse:(content: string)=>any) {
-  function safeParse(str, parse) {
+function safeParse(str, parse) {
   try {
       return [null, parse(str)];
   } catch (err) {
@@ -87,4 +87,29 @@ const SwitchIpFromName = {
   }
 }
 
-module.exports = { getSwitchStatus, setSwitchStatus, SwitchIpFromName, Consts,safeParse }
+async function waitForSwitchState(switchName, desiredState) {
+  let startTime = new Date().getTime()
+  let switchStatus;
+  do {
+    switchStatus = await getSwitchStatus(SwitchIpFromName[switchName])
+    // console.log(`[waitForSwitchState_LOOP]`, {desiredState, switchStatus})
+    // console.log( {switchStatus})
+    await sleep(500)
+    let now = new Date().getTime()
+    let timeElapsed = now - startTime
+    if (timeElapsed > 4 * 900) {
+      console.log("ERROR waitForSwitchState TIMING OUT")
+      return switchStatus
+      break;
+    }
+  } while (switchStatus != desiredState);
+  // console.log("Done, returning switchStatus: ", switchStatus)
+  return switchStatus
+}
+
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+module.exports = { getSwitchStatus, setSwitchStatus, SwitchIpFromName, Consts, safeParse, waitForSwitchState, sleep }
