@@ -9,3 +9,4 @@ console.log("[${new Date().toLocaleString()}] WORKER STARTED. Using Camunda Engi
 
 const client = new Client(Consts.engineConfig);
 const workflow = new WorkflowSubscriptions(client)
+workflow.subscribeAll()
