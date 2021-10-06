@@ -1,13 +1,10 @@
 // Sync object
 /** @type {import('@jest/types').Config.InitialOptions} */
-const config = {
-  verbose: true,
-};
 
-module.exports = config;
+const {defaults} = require('jest-config');
 
 // Or async function
-module.exports = async () => {
+module.exports = () => {
   return {
     verbose: true,
     moduleFileExtensions: [...defaults.moduleFileExtensions, 'ts', 'tsx', 'js'],

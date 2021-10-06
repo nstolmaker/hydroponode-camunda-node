@@ -1,19 +1,7 @@
 require('dotenv').config()
-const execAsync = require('util').promisify(require('child_process').exec);
-const { Client, logger, Variables } = require('camunda-external-task-client-js');
-const { resolve } = require('path');
-const { exit } = require('process');
-
-const Lights = require('../services/Lights.js')
-const Notifier = require('../services/Notifier.js')
+const { logger } = require('camunda-external-task-client-js');
 const { Consts } = require('../util.js')
 const { SwitchIpFromName, setSwitchStatus, getSwitchStatus } = require('../util.js')
-
-// configuration for the Client:
-//  - 'baseUrl': url to the Process Engine
-//  - 'logger': utility to automatically log important events
-//  - 'asyncResponseTimeout': long polling timeout (then a new request will be issued)
-const config = { baseUrl: Consts.CAMUNDA_BASE_URL + '/engine-rest' || 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000};
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));

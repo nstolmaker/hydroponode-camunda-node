@@ -12,6 +12,8 @@ const Consts = {
   HEAT_IP: process.env.HEAT_IP,
   WATER_IP: process.env.WATER_IP,
   CAMUNDA_BASE_URL: process.env.CAMUNDA_BASE_URL,
+  CAMUNDA_PROCESS_NAME: process.env.CAMUNDA_PROCESS_NAME,
+  engineConfig: { baseUrl: process.env.CAMUNDA_BASE_URL + '/engine-rest' || 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000}
 }
 
 const SwitchIpFromName = {
@@ -36,7 +38,9 @@ const SwitchIpFromName = {
         console.log(`stderr: ${stderr}`);
         return 'fail!!!';
     }
-    const r = JSON.parse(stdout)
+    const [err, parsedContent] = safeParse(stdout, JSON.parse)
+    const r = parsedContent ? parsedContent : err
+    if (err) throw new Error("[getSwitchStatus] Unable to parse response from switch status: ", err)
     return r.system.get_sysinfo.relay_state === 1 ? true : false
   } catch (e) {
     console.error(e); // should contain code (exit code) and signal (that caused the termination).
@@ -74,4 +78,13 @@ const SwitchIpFromName = {
   }
 }
 
-module.exports = { getSwitchStatus, setSwitchStatus, SwitchIpFromName, Consts }
+// function safeParse(str:string, parse:(content: string)=>any) {
+  function safeParse(str, parse) {
+  try {
+      return [null, parse(str)];
+  } catch (err) {
+      return [err];
+  }
+}
+
+module.exports = { getSwitchStatus, setSwitchStatus, SwitchIpFromName, Consts,safeParse }
