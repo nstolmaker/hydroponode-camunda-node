@@ -65,6 +65,11 @@ describe('Lights are off and should be on (daytime)', () => {
         });
       }
     },
+    waterPumpSwitchState: async function({ task, taskService }) {
+      const processVariables = new Variables();
+      processVariables.set("waterPumpState", await getSwitchStatus(SwitchIpFromName['pump']))
+      await taskService.complete(task, processVariables);
+    },
   }
   
 
@@ -119,6 +124,20 @@ describe('Lights are off and should be on (daytime)', () => {
   });
 
 
+
+  it('should query water switch state', async () => {
+    const waterPumpSwitchStateSPY = jest.spyOn(subscriptionMock, 'waterPumpSwitchState');
+    const waterPumpSwitchStatePromise = new Promise((resolve, reject) => {
+      client.subscribe('water-pump-switch-state', async ({task, taskService})=>{ 
+        await subscriptionMock.waterPumpSwitchState({task, taskService}); 
+        resolve();
+      });
+    });
+    await waterPumpSwitchStatePromise;
+    expect(waterPumpSwitchStateSPY).toHaveBeenCalled();
+  });
+
+  
 });
 
 
@@ -177,6 +196,16 @@ describe('Lights are on and should be OFF (NIGHTtime)', () => {
         return false;
       }
     },
+    heaterSwitchState: async function({ task, taskService }) {
+      const processVariables = new Variables();
+      processVariables.set("heaterState", await getSwitchStatus(SwitchIpFromName['heater']))
+      await taskService.complete(task, processVariables);
+    },
+    waterPumpSwitchState: async function({ task, taskService }) {
+      const processVariables = new Variables();
+      processVariables.set("waterPumpState", await getSwitchStatus(SwitchIpFromName['pump']))
+      await taskService.complete(task, processVariables);
+    },
   }
 
   it('should create a new process', async () => {
@@ -227,6 +256,32 @@ describe('Lights are on and should be OFF (NIGHTtime)', () => {
     });
     await confirmLightStatePromise;
     expect(confirmLightStateSPY).toHaveBeenCalled();
+  });
+
+
+  it('should query heater switch state', async () => {
+    const heaterSwitchStateSPY = jest.spyOn(subscriptionMock, 'heaterSwitchState');
+    const heaterSwitchStatePromise = new Promise((resolve, reject) => {
+      client.subscribe('heater-switch-state', async ({task, taskService})=>{ 
+        await subscriptionMock.heaterSwitchState({task, taskService}); 
+        resolve();
+      });
+    });
+    await heaterSwitchStatePromise;
+    expect(heaterSwitchStateSPY).toHaveBeenCalled();
+  });
+
+
+  it('should query water switch state', async () => {
+    const waterPumpSwitchStateSPY = jest.spyOn(subscriptionMock, 'waterPumpSwitchState');
+    const waterPumpSwitchStatePromise = new Promise((resolve, reject) => {
+      client.subscribe('water-pump-switch-state', async ({task, taskService})=>{ 
+        await subscriptionMock.waterPumpSwitchState({task, taskService}); 
+        resolve();
+      });
+    });
+    await waterPumpSwitchStatePromise;
+    expect(waterPumpSwitchStateSPY).toHaveBeenCalled();
   });
 
 });

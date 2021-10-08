@@ -227,14 +227,14 @@ describe('Temp is too high and heater is on', () => {
       processVariables.set("heaterState", await getSwitchStatus(SwitchIpFromName['heater']))
       await taskService.complete(task, processVariables);
     },
-    manageLight: async function({ task, taskService }) {
-      const processVariables = new Variables();
-      processVariables.set("lightStateShouldBe", await getSwitchStatus(SwitchIpFromName['light']))
-      await taskService.complete(task, processVariables);
-    },
     waterPumpSwitchState: async function({ task, taskService }) {
       const processVariables = new Variables();
       processVariables.set("waterPumpState", await getSwitchStatus(SwitchIpFromName['pump']))
+      await taskService.complete(task, processVariables);
+    },
+    manageLight: async function({ task, taskService }) {
+      const processVariables = new Variables();
+      processVariables.set("lightStateShouldBe", await getSwitchStatus(SwitchIpFromName['light']))
       await taskService.complete(task, processVariables);
     },
     confirmLightState: async function({ task, taskService }) {
