@@ -21,13 +21,13 @@ afterAll(() => {
   client.stop();
 });
 
-
+let temp = 96;
 describe('Temp is too low and heater is off', () => {
   // mocked sensor data and real topic name.
   const sensorData = {
     moisture: '70',
     light: '100',
-    temperature: '66',
+    temperature: temp,
     battery: '100'
   }
   const topicName = "sensor-data";
@@ -69,10 +69,17 @@ describe('Temp is too low and heater is off', () => {
       }
     },
     heaterOn: async function({ task, taskService }) {
-      // console.log(`[${new Date().toLocaleString()}] {heater-on} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to true`);
+      console.log(`[${new Date().toLocaleString()}] {heater-on} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to true`);
       await setSwitchStatus("heater", true)
       const processVariables = new Variables();
       processVariables.set("heaterStatusShouldBe", 'true');
+      await taskService.complete(task, processVariables);
+    },
+    heaterOff: async function({ task, taskService }) {
+      console.log(`[${new Date().toLocaleString()}] {heater-off} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to false`);
+      await setSwitchStatus("heater", false)
+      const processVariables = new Variables();
+      processVariables.set("heaterStatusShouldBe", 'false');
       await taskService.complete(task, processVariables);
     },
     confirmHeaterState: async function({ task, taskService }) {
@@ -134,45 +141,6 @@ describe('Temp is too low and heater is off', () => {
   });
 
 
-  it('should should switch the heater to ON', async () => {
-    const heaterOnSPY = jest.spyOn(subscriptionMock, 'heaterOn');
-    const heaterOnPromise = new Promise((resolve, reject) => {
-      client.subscribe('heater-on', async ({task, taskService})=>{ 
-        await subscriptionMock.heaterOn({task, taskService}); 
-        resolve();
-      });
-    });
-    await heaterOnPromise;
-    expect(heaterOnSPY).toHaveBeenCalled();
-  });
-
-
-  it('should confirm the heater switched ON properly', async () => {
-    const confirmHeaterStateSPY = jest.spyOn(subscriptionMock, 'confirmHeaterState');
-    const confirmHeaterStatePromise = new Promise((resolve, reject) => {
-      client.subscribe('confirm-heater-state', async ({task, taskService})=>{ 
-        await subscriptionMock.confirmHeaterState({task, taskService}); 
-        resolve();
-      });
-    });
-    await confirmHeaterStatePromise;
-    expect(confirmHeaterStateSPY).toHaveBeenCalled();
-  });
-
-
-  it('should query water switch state', async () => {
-    const waterPumpSwitchStateSPY = jest.spyOn(subscriptionMock, 'waterPumpSwitchState');
-    const waterPumpSwitchStatePromise = new Promise((resolve, reject) => {
-      client.subscribe('water-pump-switch-state', async ({task, taskService})=>{ 
-        await subscriptionMock.waterPumpSwitchState({task, taskService}); 
-        resolve();
-      });
-    });
-    await waterPumpSwitchStatePromise;
-    expect(waterPumpSwitchStateSPY).toHaveBeenCalled();
-  });
-
-
   it('should determine proper light switch state', async () => {
     const manageLightSPY = jest.spyOn(subscriptionMock, 'manageLight');
     const manageLightPromise = new Promise((resolve, reject) => {
@@ -196,6 +164,63 @@ describe('Temp is too low and heater is off', () => {
     });
     await confirmLightStatePromise;
     expect(confirmLightStateSPY).toHaveBeenCalled();
+  });
+
+  // it('should switch the heater to ON', async () => {
+  //   const heaterOnSPY = jest.spyOn(subscriptionMock, 'heaterOn');
+  //   const heaterOnPromise = new Promise((resolve, reject) => {
+  //     client.subscribe('heater-on', async ({task, taskService})=>{ 
+  //       await subscriptionMock.heaterOn({task, taskService}); 
+  //       resolve();
+  //     });
+  //   });
+  //   await heaterOnPromise;
+  //   expect(heaterOnSPY).toHaveBeenCalled();
+  // });
+
+
+
+  it('should switch the heater to OFF', async () => {
+    const heaterOffSPY = jest.spyOn(subscriptionMock, 'heaterOff');
+    const heaterOffPromise = new Promise((resolve, reject) => {
+      client.subscribe('heater-off', async ({task, taskService})=>{ 
+        await subscriptionMock.heaterOff({task, taskService}); 
+        resolve();
+      });
+    });
+    await heaterOffPromise;
+    expect(heaterOffSPY).toHaveBeenCalled();
+  });
+
+
+  it('should confirm the heater switched ON properly', async () => {
+    const confirmHeaterStateSPY = jest.spyOn(subscriptionMock, 'confirmHeaterState');
+    const confirmHeaterStatePromise = new Promise((resolve, reject) => {
+      client.subscribe('confirm-heater-state', async ({task, taskService})=>{ 
+        await subscriptionMock.confirmHeaterState({task, taskService}); 
+        resolve();
+      });
+    });
+    await confirmHeaterStatePromise;
+    expect(confirmHeaterStateSPY).toHaveBeenCalled();
+  });
+
+
+  // it('should query water switch state', async () => {
+  //   const waterPumpSwitchStateSPY = jest.spyOn(subscriptionMock, 'waterPumpSwitchState');
+  //   const waterPumpSwitchStatePromise = new Promise((resolve, reject) => {
+  //     client.subscribe('water-pump-switch-state', async ({task, taskService})=>{ 
+  //       await subscriptionMock.waterPumpSwitchState({task, taskService}); 
+  //       resolve();
+  //     });
+  //   });
+  //   await waterPumpSwitchStatePromise;
+  //   expect(waterPumpSwitchStateSPY).toHaveBeenCalled();
+  // });
+
+  it('should close down', async () => {
+    
+    await client.stop();
   });
 
 });
