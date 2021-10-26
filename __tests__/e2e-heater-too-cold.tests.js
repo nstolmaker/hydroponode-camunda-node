@@ -21,7 +21,7 @@ afterAll(() => {
   client.stop();
 });
 
-let temp = 96;
+let temp = 66;
 describe('Temp is too low and heater is off', () => {
   // mocked sensor data and real topic name.
   const sensorData = {
@@ -166,31 +166,19 @@ describe('Temp is too low and heater is off', () => {
     expect(confirmLightStateSPY).toHaveBeenCalled();
   });
 
-  // it('should switch the heater to ON', async () => {
-  //   const heaterOnSPY = jest.spyOn(subscriptionMock, 'heaterOn');
-  //   const heaterOnPromise = new Promise((resolve, reject) => {
-  //     client.subscribe('heater-on', async ({task, taskService})=>{ 
-  //       await subscriptionMock.heaterOn({task, taskService}); 
-  //       resolve();
-  //     });
-  //   });
-  //   await heaterOnPromise;
-  //   expect(heaterOnSPY).toHaveBeenCalled();
-  // });
-
-
-
-  it('should switch the heater to OFF', async () => {
-    const heaterOffSPY = jest.spyOn(subscriptionMock, 'heaterOff');
-    const heaterOffPromise = new Promise((resolve, reject) => {
-      client.subscribe('heater-off', async ({task, taskService})=>{ 
-        await subscriptionMock.heaterOff({task, taskService}); 
+  it('should switch the heater to ON', async () => {
+    const heaterOnSPY = jest.spyOn(subscriptionMock, 'heaterOn');
+    const heaterOnPromise = new Promise((resolve, reject) => {
+      client.subscribe('heater-on', async ({task, taskService})=>{ 
+        await subscriptionMock.heaterOn({task, taskService}); 
         resolve();
       });
     });
-    await heaterOffPromise;
-    expect(heaterOffSPY).toHaveBeenCalled();
+    await heaterOnPromise;
+    expect(heaterOnSPY).toHaveBeenCalled();
   });
+
+
 
 
   it('should confirm the heater switched ON properly', async () => {
