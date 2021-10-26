@@ -21,7 +21,7 @@ class WorkflowSubscriptions {
     console.log(`[${new Date().toLocaleString()}] {heater-on} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to true`);
     await setSwitchStatus("heater", true)
     const processVariables = new Variables();
-    processVariables.set("statusShouldBe", 'true');
+    processVariables.set("heaterStatusShouldBe", 'true');
     await taskService.complete(task, processVariables);
   }
   /**
@@ -31,7 +31,7 @@ class WorkflowSubscriptions {
     console.log(`[${new Date().toLocaleString()}] {heater-off} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to false.`);
     setSwitchStatus("heater", false)
     const processVariables = new Variables();
-    processVariables.set("statusShouldBe", 'false');
+    processVariables.set("heaterStatusShouldBe", 'false');
     await taskService.complete(task, processVariables);
   }
   /**
@@ -109,7 +109,7 @@ class WorkflowSubscriptions {
   */
   confirmHeaterState = async function({ task, taskService }) {
     const switchStatus = await getSwitchStatus(SwitchIpFromName['heater'])
-    const statusShouldBe = task.variables.get('statusShouldBe')
+    const statusShouldBe = task.variables.get('heaterStatusShouldBe')
     console.log(`[${new Date().toLocaleString()}] {confirm-heater-state} called for HEATER., which runs on IP: ${SwitchIpFromName['heater']}. Queried value says: switchStatus=${switchStatus}. statusShouldBe=${statusShouldBe}`);
     if (switchStatus.toString() === statusShouldBe.toString()) {
       await taskService.complete(task);
