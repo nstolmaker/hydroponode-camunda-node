@@ -7,8 +7,9 @@ global.startNewProcess = async () => {
   let resp = await axios(endpoint, {
     method: 'POST',
     headers: { 'content-type': 'application/json'}
-  });
-  return { status: resp.status, data: resp.data }
+  }).then((resp)=>{
+    return { status: resp.status, data: resp.data }
+  })
 }
 
 global.fetchAndLock = async (topicName) => {

@@ -179,7 +179,7 @@ describe('Temp is too low and heater is off', () => {
   });
 
 
-  it('should confirm the heater switched ON properly', async () => {
+  it('should confirm the heater switched OFF properly', async () => {
     const confirmHeaterStateSPY = jest.spyOn(subscriptionMock, 'confirmHeaterState');
     const confirmHeaterStatePromise = new Promise((resolve, reject) => {
       client.subscribe('confirm-heater-state', async ({task, taskService})=>{ 
