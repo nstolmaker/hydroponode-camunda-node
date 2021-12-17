@@ -13,7 +13,8 @@ const Consts = {
   WATER_IP: process.env.WATER_IP,
   CAMUNDA_BASE_URL: process.env.CAMUNDA_BASE_URL,
   CAMUNDA_PROCESS_NAME: process.env.CAMUNDA_PROCESS_NAME,
-  engineConfig: { baseUrl: process.env.CAMUNDA_BASE_URL + '/engine-rest' || 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000}
+  engineConfig: { baseUrl: process.env.CAMUNDA_BASE_URL + '/engine-rest' || 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000},
+  BIRDSNEST_DOMAIN: process.env.BIRDSNEST_DOMAIN,
 }
 
 const SwitchIpFromName = {
