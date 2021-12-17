@@ -3,7 +3,8 @@ REST Worker process to trigger a new workflow using provided data
 // maybe it's easier to just trigger a start with the data:
 
 POST /process-definition/key/hydroponode/start
-
+https://hydroponode.link/engine-rest/process-definition/key/HeatManager/start
+or http://localhost:8080/engine-rest/process-definition/key/HeatManager/start
 Request body:
 
 {"variables":
