@@ -179,7 +179,7 @@ describe('Lights are on and should be OFF (NIGHTtime)', () => {
       const switchStatus = await getSwitchStatus(SwitchIpFromName['light'])
       const statusShouldBe = await task.variables.get('lightStateShouldBe');
       console.log(`[${new Date().toLocaleString()}] {confirm-light-state} called for LIGHT, which runs on IP: ${SwitchIpFromName['light']}. Queried value says: switchStatus=${switchStatus}. statusShouldBe=${statusShouldBe}`);
-      console.log(`testing if: ${switchStatus.toString()} === ${statusShouldBe?.toString()}`)
+      // console.log(`testing if: ${switchStatus.toString()} === ${statusShouldBe?.toString()}`)
       if (statusShouldBe !== null && switchStatus.toString() === statusShouldBe.toString()) {
         console.log(`[${new Date().toLocaleString()}] {confirm-light-state} is correct.`)
         await taskService.complete(task);
