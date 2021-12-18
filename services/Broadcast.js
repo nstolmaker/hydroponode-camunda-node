@@ -131,7 +131,7 @@ class Broadcast {
   // }
 
   async recordSensorDataInDb(sensorData) {
-    console.log("About to send sensor data to endpoint: ", this.databaseEndpoint + 'sensor-dataa');
+    console.log("About to send sensor data to endpoint: ", this.databaseEndpoint + 'sensor-data');
     const bodyPayload = 
     {
       data: sensorData
