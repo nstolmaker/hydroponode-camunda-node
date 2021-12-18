@@ -3,6 +3,7 @@ const Lights = require('../services/Lights.js')
 const Notifier = require('../services/Notifier.js')
 const Broadcast = require('../services/Broadcast.js')
 const { setSwitchStatus, getSwitchStatus, SwitchIpFromName } = require('../util.js')
+const { Variables } = require('camunda-external-task-client-js');
 
 class WorkflowSubscriptions {
   /**
