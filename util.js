@@ -41,7 +41,7 @@ const SwitchIpFromName = {
     }
     const [err, parsedContent] = safeParse(stdout, JSON.parse)
     const r = parsedContent ? parsedContent : err
-    if (err) throw new Error("[getSwitchStatus] Unable to parse response from switch status: ", err)
+    if (err) throw new Error(`[${new Date().toLocaleString()}] [getSwitchStatus] Unable to parse response from switch status: `, err)
     return r.system.get_sysinfo.relay_state === 1 ? true : false
   } catch (e) {
     console.error(e); // should contain code (exit code) and signal (that caused the termination).
