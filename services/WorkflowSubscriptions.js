@@ -1,6 +1,7 @@
 require('dotenv').config()
 const Lights = require('../services/Lights.js')
 const Notifier = require('../services/Notifier.js')
+const Broadcast = require('../services/Broadcast.js')
 const { setSwitchStatus, getSwitchStatus, SwitchIpFromName } = require('../util.js')
 
 class WorkflowSubscriptions {
@@ -19,6 +20,13 @@ class WorkflowSubscriptions {
    */
   heaterOn = async function({ task, taskService }) {
     console.log(`[${new Date().toLocaleString()}] {heater-on} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to true`);
+    const broadcast = new Broadcast();
+    const actionData = {
+      system: 'heater',
+      action: 'on',
+      message: 'going to attempt to turn ON heater because temperature is '+task.variables.get('temperature')
+    }
+    await broadcast.recordActionHistoryInDb(actionData);
     await setSwitchStatus("heater", true)
     const processVariables = new Variables();
     processVariables.set("heaterStatusShouldBe", 'true');
@@ -29,6 +37,13 @@ class WorkflowSubscriptions {
   */
   heaterOff = async function({ task, taskService }) {
     console.log(`[${new Date().toLocaleString()}] {heater-off} called, which runs on IP: ${SwitchIpFromName['heater']}. Setting status to false.`);
+    const broadcast = new Broadcast();
+    const actionData = {
+      system: 'heater',
+      action: 'off',
+      message: 'going to attempt to turn OFF heater because temperature is '+task.variables.get('temperature')
+    }
+    await broadcast.recordActionHistoryInDb(actionData);
     setSwitchStatus("heater", false)
     const processVariables = new Variables();
     processVariables.set("heaterStatusShouldBe", 'false');

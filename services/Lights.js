@@ -1,7 +1,8 @@
 /* CONTROL THE LIGHTS! */
 
 // import { DateTime, Interval } from "luxon";
-const { DateTime, Interval } = require("luxon")
+const { DateTime, Interval } = require("luxon");
+const Broadcast = require('./Broadcast.js')
 // import _ from 'lodash'
 // const {throttle} = _
 const execAsync = require('util').promisify(require('child_process').exec);
@@ -49,15 +50,25 @@ class Lights {
     const currentTimeDT = DateTime.local();
     const onOrOff = onInterval.contains(currentTimeDT);
 
+    const broadcast = new Broadcast();
+    const actionData = {
+      system: 'lights',
+      action: 'undefined',
+      message: 'going to attempt to switch lights because lux is: ' + lux
+    }
     if (onOrOff) {
       console.log("Lights should be on");
+      await broadcast.recordActionHistoryInDb(actionData);
+      actionData.action = "on";
       // if (lux < this.Consts.GREENHOUSE_LIGHT_MIN) {
-          // console.log("Switching on lights");
+          await broadcast.recordActionHistoryInDb(actionData);
           await this.switchOn();
           return { 'lightShouldBe': 'testing' };
       // }
     } else {
       console.log("lights should be off")
+      actionData.action = "off";
+      await broadcast.recordActionHistoryInDb(actionData);
       await this.switchOff();
       return { 'lightShouldBe': 'false' };
     }
