@@ -44,18 +44,22 @@ class Lights {
     });
   };
   async manageLights(lux) {
+    console.log("debugging 1");
     const startTimeDT = DateTime.local().startOf("day").plus({hours: this.Consts.LIGHTS_ON_TIME});
     const stopTimeDT = DateTime.local().startOf("day").plus({hours: this.Consts.LIGHTS_OFF_TIME});
     const onInterval = Interval.fromDateTimes(startTimeDT, stopTimeDT);
     const currentTimeDT = DateTime.local();
     const onOrOff = onInterval.contains(currentTimeDT);
 
+    console.log("debugging 2");
     const broadcast = new Broadcast();
+    console.log("debugging 3");
     const actionData = {
       system: 'lights',
       action: 'undefined',
       message: 'going to attempt to switch lights because lux is: ' + lux
     }
+    console.log("debugging 4");
     if (onOrOff) {
       console.log("Lights should be on");
       await broadcast.recordActionHistoryInDb(actionData);
