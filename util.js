@@ -59,7 +59,8 @@ const SwitchIpFromName = {
  */
  async function setSwitchStatus(switchName, newState) {
   // console.log("About to run: ", `./tplink_smartplug.py -t ${ip} -qc info`)
-  const ip = SwitchIpFromName[switchName]
+  const ip = SwitchIpFromName[switchName];
+	 if (ip == 'undefined') { console.log("Ip is undefined for switchName " + switchName + " something is not right. here is the value of Consts:", Consts); }
   const newStateString = newState ? 'on' : 'off'
   try {
     const { error, stdout, stderr } = await execAsync(`${__dirname}/tplink_smartplug.py -t ${ip} -c ${newStateString}`)
