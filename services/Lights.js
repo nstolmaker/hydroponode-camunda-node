@@ -13,17 +13,17 @@ class Lights {
     // if stopTime < startTime then they mean that time in the AM *tomorrow*. The luxon library will handle the date math for us, so just add 24 hours.
     if (this.Consts.LIGHTS_OFF_TIME < this.Consts.LIGHTS_ON_TIME) this.Consts.LIGHTS_OFF_TIME +=24;
   }
-  async function switchOff() {
+  switchOff = async function() {
     console.log("💡⬇️ Turning off switch");
 	  try {
 	    const { error, stdout, stderr } = await execAsync("./tplink_smartplug.py -t "+this.Consts.LIGHT_IP+" -c off");
 	      if (error) {
-		  console.log(`error: ${error.message}`);
-		  return;
+          console.log(`error: ${error.message}`);
+          return;
 	      }
 	      if (stderr) {
-		  console.log(`stderr: ${stderr}`);
-		  return;
+          console.log(`stderr: ${stderr}`);
+          return;
 	      }
 	      console.log(`stdout: ${stdout}`);
 	      return stdout;
@@ -34,17 +34,22 @@ class Lights {
   }
   switchOn = async function() {
     console.log("💡⬆️ Turning on switch")
-    return execAsync("./tplink_smartplug.py -t "+this.Consts.LIGHT_IP+" -c on", (error, stdout, stderr) => {
+    try {
+      const { error, stdout, stderr } = await execAsync("./tplink_smartplug.py -t "+this.Consts.LIGHT_IP+" -c on");
       if (error) {
-          console.log(`error: ${error.message}`);
-          return;
+        console.log(`error: ${error.message}`);
+        return;
       }
       if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
+        console.log(`stderr: ${stderr}`);
+        return;
       }
-      // console.log(`stdout: ${stdout}`);
-    });
+      console.log(`stdout: ${stdout}`);
+      return stdout;
+    } catch (e) {
+      console.error(e); // should contain code (exit code) and signal (that caused the termination).
+      return false
+    }
   };
   async manageLights(lux) {
     const startTimeDT = DateTime.local().startOf("day").plus({hours: this.Consts.LIGHTS_ON_TIME});
