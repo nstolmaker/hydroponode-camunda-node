@@ -72,7 +72,7 @@ class Lights {
       // if (lux < this.Consts.GREENHOUSE_LIGHT_MIN) {
           await broadcast.recordActionHistoryInDb(actionData);
           await this.switchOn();
-          return { lightShouldBe: 'true' };
+          return { lightStateShouldBe: 'true' };
       // }
     } else {
       console.log("lights should be off")
@@ -80,7 +80,7 @@ class Lights {
       await broadcast.recordActionHistoryInDb(actionData);
       const switchResponse = await this.switchOff();
 	    console.log("switchoff returned. returning from manageLight function", switchResponse);
-      return { lightShouldBe: 'false' };
+      return { lightStateShouldBe: 'false' };
     }
   };
 }

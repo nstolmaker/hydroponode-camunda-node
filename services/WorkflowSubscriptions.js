@@ -159,17 +159,16 @@ class WorkflowSubscriptions {
     const switchStatus = await getSwitchStatus(SwitchIpFromName['light'])
     console.log(`[${new Date().toLocaleString()}] {manage-light} called for LIGHT, which runs on IP: ${SwitchIpFromName['light']}. Queried value says: switchStatus=${switchStatus}`);
 
-    // use the Light service to figure out if lights should be on or off. It returns the object shaped: { lightShouldBe: calculated_value }
+    // use the Light service to figure out if lights should be on or off. It returns the object shaped: { lightStateShouldBe: calculated_value }
     const lightManager = new Lights();
     console.log('manageLight debug x0.5');
-    const lightResponse = await lightManager.manageLights(task.variables.get('light'));
+    const { lightStateShouldBe } = await lightManager.manageLights(task.variables.get('light'));
     console.log('manageLight debug x1');
-	  console.log("lightResponse: ", lightResponse);
-    const { lightShouldBe } = lightResponse;
     const processVariables = new Variables();
-    console.log('manageLight debug x2');
-    processVariables.set("lightStateShouldBe", lightShouldBe)
+    console.log('manageLight debug x2. lightStateShouldBe=', lightStateShouldBe);
+    processVariables.set("lightStateShouldBe", lightStateShouldBe)
     await taskService.complete(task, processVariables);
+    console.log("await return from taskService and I set the variable lightStateShouldBe, so the task should be completed now");
   }
   /**
   * confirm-light-state
