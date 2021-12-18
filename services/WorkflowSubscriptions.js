@@ -160,10 +160,9 @@ class WorkflowSubscriptions {
     console.log(`[${new Date().toLocaleString()}] {manage-light} called for LIGHT, which runs on IP: ${SwitchIpFromName['light']}. Queried value says: switchStatus=${switchStatus}`);
 
     // use the Light service to figure out if lights should be on or off. It returns the object shaped: { lightShouldBe: calculated_value }
-    console.log('manageLight debug x0');
     const lightManager = new Lights();
     console.log('manageLight debug x0.5');
-    const lightResponse = lightManager.manageLights();
+    const lightResponse = lightManager.manageLights(task.variables.get('light'));
     console.log('manageLight debug x1');
     const { lightShouldBe } = lightResponse;
     const processVariables = new Variables();
