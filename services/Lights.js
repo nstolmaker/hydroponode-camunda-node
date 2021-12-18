@@ -25,8 +25,8 @@ class Lights {
           console.log(`stderr: ${stderr}`);
           return;
 	      }
-	      console.log(`stdout: ${stdout}`);
-	      return stdout;
+	      // console.log(`stdout: ${stdout}`);
+	      return true;
 	  } catch (e) {
 	    console.error(e); // should contain code (exit code) and signal (that caused the termination).
 	    return false
@@ -44,8 +44,8 @@ class Lights {
         console.log(`stderr: ${stderr}`);
         return;
       }
-      console.log(`stdout: ${stdout}`);
-      return stdout;
+      // console.log(`stdout: ${stdout}`);
+      return true;
     } catch (e) {
       console.error(e); // should contain code (exit code) and signal (that caused the termination).
       return false
@@ -72,7 +72,7 @@ class Lights {
       // if (lux < this.Consts.GREENHOUSE_LIGHT_MIN) {
           await broadcast.recordActionHistoryInDb(actionData);
           await this.switchOn();
-          return { 'lightShouldBe': 'true' };
+          return { lightShouldBe: 'true' };
       // }
     } else {
       console.log("lights should be off")
@@ -80,7 +80,7 @@ class Lights {
       await broadcast.recordActionHistoryInDb(actionData);
       const switchResponse = await this.switchOff();
 	    console.log("switchoff returned. returning from manageLight function", switchResponse);
-      return { 'lightShouldBe': 'false' };
+      return { lightShouldBe: 'false' };
     }
   };
 }
