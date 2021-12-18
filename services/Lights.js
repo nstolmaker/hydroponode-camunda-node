@@ -13,20 +13,25 @@ class Lights {
     // if stopTime < startTime then they mean that time in the AM *tomorrow*. The luxon library will handle the date math for us, so just add 24 hours.
     if (this.Consts.LIGHTS_OFF_TIME < this.Consts.LIGHTS_ON_TIME) this.Consts.LIGHTS_OFF_TIME +=24;
   }
-  switchOff = async function() {
-    console.log("💡⬇️ Turning off switch")
-    return execAsync("./tplink_smartplug.py -t "+this.Consts.LIGHT_IP+" -c off", (error, stdout, stderr) => {
-      if (error) {
-          console.log(`error: ${error.message}`);
-          return;
-      }
-      if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
-      }
-      // console.log(`stdout: ${stdout}`);
-    });    
-  };
+  async function switchOff() {
+    console.log("💡⬇️ Turning off switch");
+	  try {
+	    const { error, stdout, stderr } = await execAsync("./tplink_smartplug.py -t "+this.Consts.LIGHT_IP+" -c off");
+	      if (error) {
+		  console.log(`error: ${error.message}`);
+		  return;
+	      }
+	      if (stderr) {
+		  console.log(`stderr: ${stderr}`);
+		  return;
+	      }
+	      console.log(`stdout: ${stdout}`);
+	      return stdout;
+	  } catch (e) {
+	    console.error(e); // should contain code (exit code) and signal (that caused the termination).
+	    return false
+	  }
+  }
   switchOn = async function() {
     console.log("💡⬆️ Turning on switch")
     return execAsync("./tplink_smartplug.py -t "+this.Consts.LIGHT_IP+" -c on", (error, stdout, stderr) => {
@@ -62,13 +67,14 @@ class Lights {
       // if (lux < this.Consts.GREENHOUSE_LIGHT_MIN) {
           await broadcast.recordActionHistoryInDb(actionData);
           await this.switchOn();
-          return { 'lightShouldBe': 'testing' };
+          return { 'lightShouldBe': 'true' };
       // }
     } else {
       console.log("lights should be off")
       actionData.action = "off";
       await broadcast.recordActionHistoryInDb(actionData);
-      await this.switchOff();
+      const switchResponse = await this.switchOff();
+	    console.log("switchoff returned. returning from manageLight function", switchResponse);
       return { 'lightShouldBe': 'false' };
     }
   };

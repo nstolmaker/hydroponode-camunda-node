@@ -162,8 +162,9 @@ class WorkflowSubscriptions {
     // use the Light service to figure out if lights should be on or off. It returns the object shaped: { lightShouldBe: calculated_value }
     const lightManager = new Lights();
     console.log('manageLight debug x0.5');
-    const lightResponse = lightManager.manageLights(task.variables.get('light'));
+    const lightResponse = await lightManager.manageLights(task.variables.get('light'));
     console.log('manageLight debug x1');
+	  console.log("lightResponse: ", lightResponse);
     const { lightShouldBe } = lightResponse;
     const processVariables = new Variables();
     console.log('manageLight debug x2');
