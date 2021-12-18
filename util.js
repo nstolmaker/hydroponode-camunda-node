@@ -5,8 +5,8 @@ const execAsync = require('util').promisify(require('child_process').exec);
 const { Client, logger, Variables } = require('camunda-external-task-client-js');
 
 const Consts = {
-  LIGHTS_ON_TIME: process.env.LIGHTS_ON_TIME,
-  LIGHTS_OFF_TIME: process.env.LIGHTS_OFF_TIME,
+  LIGHTS_ON_TIME: parseInt(process.env.LIGHTS_ON_TIME),
+  LIGHTS_OFF_TIME: parseInt(process.env.LIGHTS_OFF_TIME),
   THROTTLE_SWITCH_TIME: process.env.THROTTLE_SWITCH_TIME,
   LIGHT_IP: process.env.LIGHT_IP,
   HEAT_IP: process.env.HEAT_IP,

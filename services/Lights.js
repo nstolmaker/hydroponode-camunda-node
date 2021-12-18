@@ -15,7 +15,7 @@ class Lights {
   }
   switchOff = async function() {
     console.log("💡⬇️ Turning off switch")
-    return execAsync("./tplink_smartplug.py -t "+this.Consts.LIGHTS_IP+" -c off", (error, stdout, stderr) => {
+    return execAsync("./tplink_smartplug.py -t "+this.Consts.LIGHT_IP+" -c off", (error, stdout, stderr) => {
       if (error) {
           console.log(`error: ${error.message}`);
           return;
@@ -29,7 +29,7 @@ class Lights {
   };
   switchOn = async function() {
     console.log("💡⬆️ Turning on switch")
-    return execAsync("./tplink_smartplug.py -t "+this.Consts.LIGHTS_IP+" -c on", (error, stdout, stderr) => {
+    return execAsync("./tplink_smartplug.py -t "+this.Consts.LIGHT_IP+" -c on", (error, stdout, stderr) => {
       if (error) {
           console.log(`error: ${error.message}`);
           return;
