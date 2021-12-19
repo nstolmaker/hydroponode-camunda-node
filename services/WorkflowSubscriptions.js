@@ -71,6 +71,13 @@ class WorkflowSubscriptions {
   */
   waterPlant = async function({ task, taskService }) {
     const moistureVal = task.variables.get('moisture')
+    const broadcast = new Broadcast();
+    const actionData = {
+      system: 'pump',
+      action: 'on',
+      message: 'going to attempt to turn ON pump because moisture is '+moistureVal
+    }
+    await broadcast.recordActionHistoryInDb(actionData);
     console.log(`[${new Date().toLocaleString()}] {water-plant} called, moisture should be too low. currently: ${moistureVal}`);
     const notifierClient = new Notifier();
     const msg = `[${new Date().toLocaleString()}] Watering plant. currently: ${moistureVal}`;

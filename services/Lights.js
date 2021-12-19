@@ -4,6 +4,7 @@ const {Consts} = require('../util.js');
 const { DateTime, Interval } = require("luxon");
 const Broadcast = require('./Broadcast.js')
 const execAsync = require('util').promisify(require('child_process').exec);
+const { getSwitchStatus, SwitchIpFromName } = require('../util.js')
 
 class Lights {
   constructor() {
@@ -57,6 +58,7 @@ class Lights {
     const onInterval = Interval.fromDateTimes(startTimeDT, stopTimeDT);
     const currentTimeDT = DateTime.local();
     const onOrOff = onInterval.contains(currentTimeDT);
+    const switchStatus = await getSwitchStatus(SwitchIpFromName['light'])
 
     const broadcast = new Broadcast();
     const actionData = {
@@ -67,19 +69,21 @@ class Lights {
     console.log("debugging 4");
     if (onOrOff) {
       console.log("Lights should be on");
-      await broadcast.recordActionHistoryInDb(actionData);
       actionData.action = "on";
-      // if (lux < this.Consts.GREENHOUSE_LIGHT_MIN) {
+      if (parseInt(lux) < this.Consts.GREENHOUSE_LIGHT_MIN) {
           await broadcast.recordActionHistoryInDb(actionData);
           await this.switchOn();
-          return { lightStateShouldBe: 'true' };
-      // }
+      }
+      return { lightStateShouldBe: 'true' };
     } else {
       console.log("lights should be off")
       actionData.action = "off";
-      await broadcast.recordActionHistoryInDb(actionData);
-      const switchResponse = await this.switchOff();
-	    console.log("switchoff returned. returning from manageLight function", switchResponse);
+
+      if (switchStatus == true) {
+        await broadcast.recordActionHistoryInDb(actionData);
+        const switchResponse = await this.switchOff();
+        console.log("switchoff returned. returning from manageLight function", switchResponse);
+      }
       return { lightStateShouldBe: 'false' };
     }
   };

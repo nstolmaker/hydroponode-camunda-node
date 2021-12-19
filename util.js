@@ -15,6 +15,7 @@ const Consts = {
   CAMUNDA_PROCESS_NAME: process.env.CAMUNDA_PROCESS_NAME,
   engineConfig: { baseUrl: process.env.CAMUNDA_BASE_URL + '/engine-rest' || 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000},
   BIRDSNEST_DOMAIN: process.env.BIRDSNEST_DOMAIN,
+  GREENHOUSE_LIGHT_MIN: 20,
 }
 
 const SwitchIpFromName = {
