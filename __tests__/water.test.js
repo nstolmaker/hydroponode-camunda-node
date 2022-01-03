@@ -64,7 +64,7 @@ describe('waterering works', () => {
     }
     getSwitchStatus.mockReturnValueOnce(false)
     setSwitchStatus.mockReturnValue(true)
-    await workflowSubscriptions.waterPlant({task, taskService});
+    await workflowSubscriptions.manageMoisture({task, taskService});
     // TODO: replace with water-pump-switch-state when sure its working
     expect(getSwitchStatus).toHaveBeenCalledTimes(1);
   })

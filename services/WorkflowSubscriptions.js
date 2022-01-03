@@ -68,31 +68,31 @@ class WorkflowSubscriptions {
     //  await taskService.complete(task);
   }
   /**
-  * water-plant
+  * manage-moisture
   */
-  waterPlant = async function({ task, taskService }) {
+   manageMoisture = async function({ task, taskService }) {
     const moistureVal = task.variables.get('moisture')
     const broadcast = new Broadcast();
-    const actionData = {
-      system: 'pump',
-      action: 'on',
-      message: 'going to attempt to turn ON pump because moisture is '+moistureVal
-    }
-    await broadcast.recordActionHistoryInDb(actionData);
-    console.log(`[${new Date().toLocaleString()}] {water-plant} called, moisture should be too low. currently: ${moistureVal}`);
+    // const actionData = {
+    //   system: 'pump',
+    //   action: 'on',
+    //   message: 'going to attempt to turn ON pump because moisture is '+moistureVal
+    // }
+    // await broadcast.recordActionHistoryInDb(actionData);
+    console.log(`[${new Date().toLocaleString()}] {manage-moisture} called, moisture should be too low. currently: ${moistureVal}`);
     const notifierClient = new Notifier();
     const msg = `[${new Date().toLocaleString()}] Watering plant. currently: ${moistureVal}`;
     await notifierClient.sendNotification(msg)
 
     // use the Light service to figure out if lights should be on or off. It returns the object shaped: { lightStateShouldBe: calculated_value }
     const pumpManager = new Pumps();
-    console.log('waterPlant debug x0.5');
+    // console.log('manageMoisture debug x0.5');
     const { pumpStateShouldBe } = await pumpManager.managePumps(task.variables.get('moisture'));
-    console.log('waterPlant debug x1');
+    // console.log('manageMoisture debug x1');
     const processVariables = new Variables();
-    console.log('waterPlant debug x2. pumpStateShouldBe=', pumpStateShouldBe);
+    // console.log('manageMoisture debug x2. pumpStateShouldBe=', pumpStateShouldBe);
     processVariables.set("pumpStateShouldBe", pumpStateShouldBe)
-    console.log("await return from taskService and I set the variable lightStateShouldBe, so the task should be completed now");
+    console.log("await return from taskService and I set the variable pumpStateShouldBe, so the task should be completed now.");
     await taskService.complete(task, processVariables);
   }
   /**
@@ -231,7 +231,7 @@ class WorkflowSubscriptions {
     this.client.subscribe('heater-on', this.heaterOn);
     this.client.subscribe('heater-off', this.heaterOff);
     this.client.subscribe('temp-warning', this.tempWarning);
-    this.client.subscribe('water-plant', this.waterPlant);
+    this.client.subscribe('manage-moisture', this.manageMoisture);
     this.client.subscribe('water-pump-switch-state', this.waterPumpSwitchState);
     this.client.subscribe('water-pump-ctrl-start', this.waterPumpCtrlStart);
     this.client.subscribe('water-pump-ctrl-stop', this.waterPumpCtrlStop);
