@@ -23,18 +23,26 @@ class Pumps {
       message: `going to attempt to turn ON pump because moisture is ${moisture}`
     }
     await broadcast.recordActionHistoryInDb(actionData);
-    await setSwitchStatus("pump", true)
+    await setSwitchStatus("pump", true);
     await this.sleep(this.Consts.WATERING_DURATION);
 
     console.log("🌤 Stopping Watering @ "+new Date().toLocaleString()+".")
     await setSwitchStatus("pump", false);
+    const turnOffSwitchTimedOut = await waitForSwitchState("pump", false);
+    if (turnOffSwitchTimedOut) {
+      let notifier = new Notifier;
+      const pumpFailedToTurnOffErrorMsg = "Failed to turn off the pump. Going to try again one more time. If this happens once, you need to go put in more robust retry functions in here. Moisture was: "+moisture+"%. Watering now.";
+      console.log("🚨 "+ pumpFailedToTurnOffErrorMsg)
+      notifier.sendNotification(pumpFailedToTurnOffErrorMsg);
+      await setSwitchStatus("pump", false);
+    }
     const endActionData = {
       system: 'pump',
       action: 'off',
       message: 'going to attempt to turn OFF pump, watering should be done'
     }
     await broadcast.recordActionHistoryInDb(endActionData);
-
+    return true;
   };
 
 

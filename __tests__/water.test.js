@@ -48,7 +48,7 @@ describe('waterering works', () => {
     
   // });
 
-  it('properly mocks the pump functions so nothing changes', async () => {
+  it('runs the pump and turns it off', async () => {
     const workflowSubscriptions = new WorkflowSubscriptions();
     const task = {
       variables: {
@@ -62,10 +62,38 @@ describe('waterering works', () => {
         console.log("TEST MOCK: taskService.complete() executed");
       } //mock.fn()?
     }
-    getSwitchStatus.mockReturnValueOnce(false)
-    setSwitchStatus.mockReturnValue(true)
+    getSwitchStatus.mockReturnValueOnce(false).mockReturnValueOnce(false);
+    setSwitchStatus.mockReturnValue(true).mockReturnValueOnce(true);
+    waitForSwitchState.mockReturnValue(false);
     await workflowSubscriptions.manageMoisture({task, taskService});
     // TODO: replace with water-pump-switch-state when sure its working
+    expect(waitForSwitchState).toHaveBeenCalledTimes(1);
     expect(getSwitchStatus).toHaveBeenCalledTimes(1);
+    expect(setSwitchStatus).toHaveBeenCalledTimes(2);
+  });
+
+  it('tries to turn off the pump a second time if the first time failss', async () => {
+    const workflowSubscriptions = new WorkflowSubscriptions();
+    const task = {
+      variables: {
+        get: function(key) {
+          return ('-100')
+        }
+      }
+    }
+    const taskService = {
+      complete: function () {
+        console.log("TEST MOCK: taskService.complete() executed");
+      } //mock.fn()?
+    }
+    getSwitchStatus.mockReturnValueOnce(false).mockReturnValueOnce(false);
+    setSwitchStatus.mockReturnValue(true).mockReturnValueOnce(true);
+    
+    waitForSwitchState.mockReturnValue(true);
+    await workflowSubscriptions.manageMoisture({task, taskService});
+    // TODO: replace with water-pump-switch-state when sure its working
+    expect(waitForSwitchState).toHaveBeenCalledTimes(2);
+    expect(getSwitchStatus).toHaveBeenCalledTimes(2);
+    expect(setSwitchStatus).toHaveBeenCalledTimes(5);
   })
 });
