@@ -3,7 +3,13 @@ const { logger } = require('camunda-external-task-client-js');
 const { Consts } = require('../util.js')
 const { SwitchIpFromName, setSwitchStatus, getSwitchStatus, waitForSwitchState, sleep } = require('../util.js')
 
+jest.mock('../util');
+getSwitchStatus.mockReturnValueOnce(true).mockReturnValueOnce(false).mockReturnValueOnce(true)
+.mockReturnValueOnce(true).mockReturnValueOnce(false).mockReturnValueOnce(true);
 
+setSwitchStatus.mockReturnValue(true)
+
+waitForSwitchState.mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValueOnce(true).mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValueOnce(true)
 
 test('Light switch is controllable', async () => {
   // test the light
