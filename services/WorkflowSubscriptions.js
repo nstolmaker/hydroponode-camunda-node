@@ -1,5 +1,6 @@
 require('dotenv').config()
 const Lights = require('../services/Lights.js')
+const Pumps = require('../services/Pumps.js')
 const Notifier = require('../services/Notifier.js')
 const Broadcast = require('../services/Broadcast.js')
 const { setSwitchStatus, getSwitchStatus, SwitchIpFromName } = require('../util.js')
@@ -82,7 +83,17 @@ class WorkflowSubscriptions {
     const notifierClient = new Notifier();
     const msg = `[${new Date().toLocaleString()}] Watering plant. currently: ${moistureVal}`;
     await notifierClient.sendNotification(msg)
-    await taskService.complete(task);
+
+    // use the Light service to figure out if lights should be on or off. It returns the object shaped: { lightStateShouldBe: calculated_value }
+    const pumpManager = new Pumps();
+    console.log('waterPlant debug x0.5');
+    const { pumpStateShouldBe } = await pumpManager.managePumps(task.variables.get('moisture'));
+    console.log('waterPlant debug x1');
+    const processVariables = new Variables();
+    console.log('waterPlant debug x2. pumpStateShouldBe=', pumpStateShouldBe);
+    processVariables.set("pumpStateShouldBe", pumpStateShouldBe)
+    console.log("await return from taskService and I set the variable lightStateShouldBe, so the task should be completed now");
+    await taskService.complete(task, processVariables);
   }
   /**
   * water-pump-switch-state

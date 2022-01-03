@@ -8,6 +8,7 @@ module.exports = () => {
   return {
     verbose: true,
     moduleFileExtensions: [...defaults.moduleFileExtensions, 'ts', 'tsx', 'js'],
-    setupFiles: ['./jest.helpers.js']
+    setupFiles: ['./jest.helpers.js'],
+    testTimeout: 15000,
   };
 };
