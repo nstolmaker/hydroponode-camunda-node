@@ -16,7 +16,7 @@ const Consts = {
   engineConfig: { baseUrl: process.env.CAMUNDA_BASE_URL + '/engine-rest' || 'http://localhost:8080/engine-rest', use: logger, asyncResponseTimeout: 10000},
   BIRDSNEST_DOMAIN: process.env.BIRDSNEST_DOMAIN,
   GREENHOUSE_LIGHT_MIN: 20,
-  WATERING_DURATION: process.env.WATERING_DURATION || 3,
+  WATERING_DURATION: parseInt(process.env.WATERING_DURATION) || 3,
   GREENHOUSE_MOISTURE_MIN: parseInt(process.env.GREENHOUSE_MOISTURE_MIN)
 }
 
