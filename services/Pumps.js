@@ -100,9 +100,9 @@ class Pumps {
 
     if (itsTooDry) {
       let notifier = new Notifier;
-      notifier.sendNotification("Moisture level too dry: "+moisture+"%. Watering now.");
+      console.log("💧🔫 Moisture level too dry: "+moisture+"%. Watering now.");
       await this.hydrate(moisture);
-      console.log("this.hydrate is done.")
+      console.log("💧✅ this.hydrate is done.")
     } else {
       console.log("💧✅ Moisture is at an acceptable level. ");
     }
