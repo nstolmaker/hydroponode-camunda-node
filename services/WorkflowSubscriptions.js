@@ -71,8 +71,8 @@ class WorkflowSubscriptions {
   * manage-moisture
   */
    manageMoisture = async function({ task, taskService }) {
-    console.log(`[${new Date().toLocaleString()}] {manage-moisture} called, moisture should be too low. currently: ${moistureVal}`);
     const moistureVal = task.variables.get('moisture');
+    console.log(`[${new Date().toLocaleString()}] {manage-moisture} called, check to see if it's too low. currently: ${moistureVal}`);
     // const actionData = {
     //   system: 'pump',
     //   action: 'on',
@@ -80,9 +80,9 @@ class WorkflowSubscriptions {
     // }
     // await broadcast.recordActionHistoryInDb(actionData);
     
-    const notifierClient = new Notifier();
-    const msg = `[${new Date().toLocaleString()}] Watering plant. currently: ${moistureVal}`;
-    await notifierClient.sendNotification(msg)
+    // const notifierClient = new Notifier();
+    // const msg = `[${new Date().toLocaleString()}] Watering plant. currently: ${moistureVal}`;
+    // await notifierClient.sendNotification(msg)
 
     // use the Light service to figure out if lights should be on or off. It returns the object shaped: { lightStateShouldBe: calculated_value }
     const pumpManager = new Pumps();

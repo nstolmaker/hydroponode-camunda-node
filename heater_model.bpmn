@@ -93,7 +93,7 @@
       <bpmn:startEvent id="Event_04zyhew" name="Water Flow Start">
         <bpmn:outgoing>Flow_0klgscg</bpmn:outgoing>
       </bpmn:startEvent>
-      <bpmn:serviceTask id="Activity_0b1hnjt" name="Manage Pumps" camunda:type="external" camunda:topic="water-plant">
+      <bpmn:serviceTask id="Activity_0b1hnjt" name="Manage Pumps" camunda:type="external" camunda:topic="manage-moisture">
         <bpmn:incoming>Flow_0klgscg</bpmn:incoming>
         <bpmn:outgoing>Flow_0spm37s</bpmn:outgoing>
       </bpmn:serviceTask>
