@@ -205,7 +205,6 @@
       <bpmn:sequenceFlow id="Flow_04c5tjq" name="Yes" sourceRef="Gateway_0ijre0d" targetRef="Event_1yp8ffe">
         <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${temperature&gt;90}</bpmn:conditionExpression>
       </bpmn:sequenceFlow>
-      <bpmn:sequenceFlow id="Flow_0m3kf0u" name="Yes" sourceRef="Gateway_0477bna" targetRef="Activity_1wdksim" />
       <bpmn:sequenceFlow id="Flow_1cyfttq" sourceRef="Activity_1wdksim" targetRef="Gateway_0l6sbgp" />
       <bpmn:sequenceFlow id="Flow_0nya6fn" name="Off" sourceRef="Gateway_0l6sbgp" targetRef="Gateway_0ijre0d">
         <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!heaterState}</bpmn:conditionExpression>
@@ -220,6 +219,9 @@
       <bpmn:sequenceFlow id="Flow_07m202y" sourceRef="Activity_1ibcyzf" targetRef="Activity_0faf1ri" />
       <bpmn:sequenceFlow id="Flow_1lvidon" sourceRef="Activity_0futvbv" targetRef="Activity_1tkv7o9" />
       <bpmn:sequenceFlow id="Flow_082yeu6" sourceRef="Event_00veowc" targetRef="Gateway_0btjy93" />
+      <bpmn:sequenceFlow id="Flow_0m3kf0u" name="Yes" sourceRef="Gateway_0477bna" targetRef="Activity_1wdksim">
+        <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${temperature&gt;82}</bpmn:conditionExpression>
+      </bpmn:sequenceFlow>
     </bpmn:subProcess>
     <bpmn:sequenceFlow id="Flow_12rtuoe" sourceRef="Activity_0yk8fpr" targetRef="Activity_06ibcst" />
   </bpmn:process>
