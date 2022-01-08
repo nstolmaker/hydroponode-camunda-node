@@ -11,7 +11,7 @@ class Pumps {
   constructor() {
     this.Consts = Consts
   }
-  sleep = function(ms) {
+  sleep = async function(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
   hydrate = async function(moisture) {
@@ -23,12 +23,17 @@ class Pumps {
       message: `going to attempt to turn ON pump because moisture is ${moisture}`
     }
     await broadcast.recordActionHistoryInDb(actionData);
+    console.log("WATER DEBUG: Turning on pump @ "+new Date().toLocaleString()+".")
     await setSwitchStatus("pump", true);
+    console.log("WATER DEBUG: Running sleep command @ "+new Date().toLocaleString()+".")
     await this.sleep(this.Consts.WATERING_DURATION);
+    console.log("WATER DEBUG: Sleep finished @ "+new Date().toLocaleString()+".")
 
     console.log("🌤 Stopping Watering @ "+new Date().toLocaleString()+".")
     await setSwitchStatus("pump", false);
+    console.log("WATER DEBUG: Pump stopped @ "+new Date().toLocaleString()+". Starting waitForSwitchState.")
     const turnOffSwitchTimedOut = await waitForSwitchState("pump", false);
+    console.log("WATER DEBUG: Pump finished waiting for waitForSwitchState(false) @ "+new Date().toLocaleString()+".")
     if (turnOffSwitchTimedOut) {
       let notifier = new Notifier;
       const pumpFailedToTurnOffErrorMsg = "Failed to turn off the pump. Going to try again one more time. If this happens once, you need to go put in more robust retry functions in here. Moisture was: "+moisture+"%. Watering now.";
