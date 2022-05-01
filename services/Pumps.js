@@ -47,7 +47,7 @@ class Pumps {
       message: 'going to attempt to turn OFF pump, watering should be done'
     }
     await broadcast.recordActionHistoryInDb(endActionData);
-    return true;
+    return !turnOffSwitchTimedOut;
   };
 
 
