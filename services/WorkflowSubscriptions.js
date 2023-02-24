@@ -56,7 +56,6 @@ class WorkflowSubscriptions {
  */
   tempWarning = async function({ task, taskService }) {
     const tempVal = task.variables.get('temperature');
-    console.log(`[${new Date().toLocaleString()}] {temp-warning} called, temperature is out of bounds, currently: ${tempVal}`);
     const notifierClient = new Notifier();
     const errorMessage = `[TEMP WARNING] temperature is out of bounds, currently: ${tempVal}`;
     await notifierClient.sendNotification(errorMessage)
@@ -110,9 +109,8 @@ class WorkflowSubscriptions {
   */
   waterPumpCtrlStart = async function({ task, taskService }) {
     const moistureVal = task.variables.get('moisture')
-    console.log(`[${new Date().toLocaleString()}] {water-pump-ctrl-start} called, moisture should be too low. currently: ${moistureVal}`);
     const notifierClient = new Notifier();
-    const msg = `[${new Date().toLocaleString()}] Watering plant. currently: ${moistureVal}`;
+    const msg = `[${new Date().toLocaleString()}] {water-pump-ctl-start} called, Watering plant. currently: ${moistureVal}`;
     await notifierClient.sendNotification(msg)
     await taskService.complete(task);
   }
@@ -121,9 +119,8 @@ class WorkflowSubscriptions {
   */
   waterPumpCtrlStop = async function({ task, taskService }) {
     const moistureVal = task.variables.get('moisture')
-    console.log(`[${new Date().toLocaleString()}] {water-pump-ctrl-stop} called, moisture should be too low. currently: ${moistureVal}`);
     const notifierClient = new Notifier();
-    const msg = `[${new Date().toLocaleString()}] Watering plant. currently: ${moistureVal}`;
+    const msg = `[${new Date().toLocaleString()}] {water-pump-ctrl-stop} called, stopping the pump. Next refresh will get the new moisture value`;
     await notifierClient.sendNotification(msg)
     await taskService.complete(task);
   }
@@ -132,9 +129,8 @@ class WorkflowSubscriptions {
   */
   confirmWaterPumpState = async function({ task, taskService }) {
     const moistureVal = task.variables.get('moisture')
-    console.log(`[${new Date().toLocaleString()}] {confirm-water-pump-state} called, moisture should be too low. currently: ${moistureVal}`);
     const notifierClient = new Notifier();
-    const msg = `[${new Date().toLocaleString()}] Watering plant. currently: ${moistureVal}`;
+    const msg = `[${new Date().toLocaleString()}] {confirm-water-pump-state} called.`;
     await notifierClient.sendNotification(msg)
     await taskService.complete(task);
   }
@@ -220,7 +216,6 @@ class WorkflowSubscriptions {
   */
   errorNotifier = async function({ task, taskService }) {
     const msg = `[${new Date().toLocaleString()}] {error-notifier} called, task.errorMessage: ${task.errorMessage}`;
-    console.log(msg);
     const notifierClient = new Notifier();
     await notifierClient.sendNotification(msg)
     await taskService.complete(task);

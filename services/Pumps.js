@@ -37,7 +37,6 @@ class Pumps {
     if (turnOffSwitchTimedOut) {
       let notifier = new Notifier;
       const pumpFailedToTurnOffErrorMsg = "Failed to turn off the pump. Going to try again one more time. If this happens once, you need to go put in more robust retry functions in here. Moisture was: "+moisture+"%. Watering now.";
-      console.log("🚨 "+ pumpFailedToTurnOffErrorMsg)
       notifier.sendNotification(pumpFailedToTurnOffErrorMsg);
       await setSwitchStatus("pump", false);
     }
@@ -94,7 +93,6 @@ class Pumps {
       const switchStatus = await getSwitchStatus(SwitchIpFromName['pump']);
       if (switchStatus) {
       	const pumpShouldntBeOnErrorMsg = "WARNING! Pump switch returned ON, but it should be off because it's a pump and we haven't started it yet. Did it get left on? Or is the IP address pointing to the wrong device? Turning it off just to be safe and sending a notification.";
-	console.log("🚨 "+pumpShouldntBeOnErrorMsg)
       	let notifier = new Notifier;
         notifier.sendNotification(pumpShouldntBeOnErrorMsg);
         await setSwitchStatus("pump", false);

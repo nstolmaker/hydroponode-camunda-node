@@ -134,7 +134,7 @@ class Broadcast {
     console.log("About to send sensor data to endpoint: ", this.databaseEndpoint + 'sensor-data');
     const bodyPayload = sensorData;
     
-	  console.log("Payload is: ", bodyPayload);
+    console.log("Payload is: ", bodyPayload);
     const response = await axios({
       url: this.databaseEndpoint + 'sensor-data',
       data: bodyPayload,
@@ -161,7 +161,7 @@ class Broadcast {
     console.log("About to send action history data to endpoint: ", this.databaseEndpoint + 'action-history');
     const bodyPayload = JSON.stringify(actionData);
     
-	  console.log("Payload is: ", bodyPayload);
+    console.log("Payload is: ", bodyPayload);
     const response = await axios({
       url: this.databaseEndpoint + 'action-history',
       data: bodyPayload,
