@@ -93,7 +93,17 @@ class Pumps {
     try {
       const switchStatus = await getSwitchStatus(SwitchIpFromName['pump']);
       if (switchStatus) {
-        console.log("WARNING! pump switch is returning ON, but it should be off because it's a pump and we haven't started it yet. Did it get left on? Or is the IP address pointing to the wrong device?");
+      	const pumpShouldntBeOnErrorMsg = "WARNING! Pump switch returned ON, but it should be off because it's a pump and we haven't started it yet. Did it get left on? Or is the IP address pointing to the wrong device? Turning it off just to be safe and sending a notification.";
+	console.log("🚨 "+pumpShouldntBeOnErrorMsg)
+      	let notifier = new Notifier;
+        notifier.sendNotification(pumpShouldntBeOnErrorMsg);
+        await setSwitchStatus("pump", false);
+	const endActionData = {
+	  system: 'pump',
+	  action: 'off',
+	  message: 'Turning off a pump that should have already been off. Maybe multiple threads running at once, the process died, or the ip address is wrong. This is a warning worth looking into.'
+	}
+	await broadcast.recordActionHistoryInDb(endActionData);
       }
     } catch (err) {
       throw new Error("managePumps Failed to getSwitchStatus, maybe the sswitch isn't plugged in?")
