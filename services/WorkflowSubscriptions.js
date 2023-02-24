@@ -205,12 +205,14 @@ class WorkflowSubscriptions {
       // console.log(errorMessage)
       const notifierClient = new Notifier();
       await notifierClient.sendNotification(errorMessage)
-      await taskService.handleFailure(task, {
+      await taskService.complete(task);
+      /* await taskService.handleFailure(task, {
         errorMessage,
         errorDetails: `light-state is currently: ${switchStatus}, should be ${statusShouldBe}`,
         retries: 1,
         retryTimeout: 10 * 1000
       });
+      */
     }
   }
   /**
